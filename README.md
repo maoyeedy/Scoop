@@ -12,7 +12,6 @@ scoop install processing4
 scoop install eudic
 scoop install ...
 ```
-
 ### Bucket List：
 > baidunetdisk — 百度网盘
 
