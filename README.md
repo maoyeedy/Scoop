@@ -5,4 +5,4 @@ Yeedy's buckets for [Scoop](https://scoop.sh), the Windows command-line installe
 How do I install these manifests?
 ---------------------------------
 
-To add this bucket, run `scoop bucket add maoyeedy_scoop https://github.com/maoyeedy/scoop`. To install, do `scoop install <manifest>`.
+To add this bucket, run `scoop bucket add maoyeedy_scoop-yeedy https://github.com/maoyeedy/scoop-yeedy`. To install, do `scoop install <manifest>`.
