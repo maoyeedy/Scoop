@@ -13,8 +13,6 @@ scoop install eudic
 scoop install ...
 ```
 ### Bucket List：
-> baidunetdisk — 百度网盘
-
 > eudic — 欧路词典
 
 > nomeiryoui — 更改 Windows UI 字体
