@@ -20,7 +20,7 @@
         ]
     ],
     "checkver": {
-        "github": "https://github.com/processing4/processing",
+        "github": "https://github.com/processing/processing4",
         "regex": "/releases/tag/processing-(?<rev>[\\d]+)-([\\d.]+)"
     },
     "autoupdate": {
