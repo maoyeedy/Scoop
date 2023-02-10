@@ -1,14 +1,14 @@
 {
-    "version": "4.1.2",
+    "version": "4.1.3",
     "description": "A flexible software sketchbook and a language for learning how to code within the context of the visual arts",
     "homepage": "https://processing.org/",
     "license": {
         "identifier": "GPL-2.0-or-later,LGPL-2.0-or-later,IPL-1.0",
         "url": "https://raw.githubusercontent.com/processing/processing4/main/LICENSE.md"
     },
-    "url": "https://github.com/processing/processing4/releases/download/processing-1290-4.1.2/processing-4.1.2-windows-x64.zip",
-    "hash": "cca03ed18f7339640f91cf46658494d4a9d0f2ec4278241fc3654ad1013c71a0",
-    "extract_dir": "processing-4.1.2",
+    "url": "https://github.com/processing/processing4/releases/download/processing-1291-4.1.3/processing-4.1.3-windows-x64.zip",
+    "hash": "bf38d4531d52e064d29c8eb3347e78c7793e7785d5bb9825734cadc1c5bf150c",
+    "extract_dir": "processing-4.1.3",
     "bin": [
         "processing.exe",
         "processing-java.exe"
