@@ -21,7 +21,3 @@ scoop install ...
 
 > sarasa-mono-sc-nerd — 我最爱的等宽字体
 
-<blockquote>
-<p>"The greatest glory in living lies not in never falling, but in rising every time we fall."</p>
-<footer>-Nelson Mandela</footer>
-</blockquote>
