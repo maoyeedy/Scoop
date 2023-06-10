@@ -9,15 +9,5 @@ scoop bucket add maoyeedy_scoop https://github.com/maoyeedy/scoop
 To install:
 ```
 scoop install processing4
-scoop install eudic
 scoop install ...
 ```
-### Bucket List：
-> eudic — 欧路词典
-
-> nomeiryoui — 更改 Windows UI 字体
-
-> processing4 — Scoop 官方只更新到了 v3.5.4
-
-> sarasa-mono-sc-nerd — 我最爱的等宽字体
-
