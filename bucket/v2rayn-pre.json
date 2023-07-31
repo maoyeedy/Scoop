@@ -5,7 +5,7 @@
     "license": "GPL-3.0-only",
     "depends": "xray",
     "suggest": {
-        ".NET Desktop Runtime": "extras/windowsdesktop-runtime-lts",
+        ".NET Desktop Runtime": "extras/windowsdesktop-runtime-lts"
     },
     "architecture": {
         "64bit": {
