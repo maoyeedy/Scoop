@@ -6,7 +6,6 @@
     "depends": "xray",
     "suggest": {
         ".NET Desktop Runtime": "extras/windowsdesktop-runtime-lts",
-        "v2fly-core": "v2ray"
     },
     "architecture": {
         "64bit": {
