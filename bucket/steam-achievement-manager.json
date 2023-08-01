@@ -1,6 +1,6 @@
 {
     "version": "7.0.25",
-    "description": "Steam Achievement Manager for game achievements in Steam",
+    "description": "Steam Achievement Manager for game achievements in Steam.",
     "homepage": "https://github.com/gibbed/SteamAchievementManager",
     "license": "Zlib",
     "url": "https://github.com/gibbed/SteamAchievementManager/releases/download/7.0.25/SteamAchievementManager-7.0.25.zip",
