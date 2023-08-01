@@ -16,11 +16,6 @@
             "url": "https://github.com/SagerNet/sing-box/releases/download/v1.3.4/sing-box-1.3.4-windows-386.zip",
             "extract_dir": "sing-box-1.3.4-windows-386",
             "hash": "0bdc846971a82fb7ba9daa162ec0301a8e806c8d28b19093ff6ae6e13f53c502"
-        },
-        "arm64": {
-            "url": "https://github.com/SagerNet/sing-box/releases/download/v1.3.4/sing-box-1.3.4-windows-arm64.zip",
-            "extract_dir": "sing-box-1.3.4-windows-arm64",
-            "hash": "8193c67bacf1672eb252fbcab3efc20aad28157f16d3d4bbc3a3d20a548b92a7"
         }
     },
     "bin": "sing-box.exe",
@@ -37,10 +32,6 @@
             "32bit": {
                 "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-$version-windows-386.zip",
                 "extract_dir": "sing-box-$version-windows-386"
-            },
-            "arm64": {
-                "url": "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-$version-windows-arm64.zip",
-                "extract_dir": "sing-box-$version-windows-arm64"
             }
         }
     }
