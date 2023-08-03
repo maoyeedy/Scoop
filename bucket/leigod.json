@@ -6,14 +6,21 @@
         "identifier": "Proprietary",
         "url": "https://www.leigod.com/help/privacyAgreement.html"
     },
-    "notes": "Config stored in $env:APPDATA\\leigod",
-    "url": "https://update.leigod.com/soft/channel/LeiGodSetup_steam.exe#/dl.7z",
-    "hash": "a7eb8da6ba87aa90dc4bc2d9efe3808cea731ababe9d18dbbb2ca09b5d5ea47b",
+    "url": "https://update.leigod.com/soft/win/10.0.0.0/LeiGodSetup.10.0.0.0.exe#/dl.7z",
+    "hash": "26f16eedd059b2fd7ab9d5980375c2deaaf02a3ad808a5560a198491a5b3029b",
     "innosetup": true,
     "post_install": [
         "Remove-Item \"$dir\\Uninstaller\" -Force -Recurse",
-        "Remove-Item \"$dir\\Uninstall.exe\" -Force"
+        "Remove-Item \"$dir\\Uninstall.exe\" -Force",
+        "Remove-Item \"$dir\\resources\\leishenSdk\\updater.exe\" -Force"
     ],
+    "uninstaller": {
+        "script": [
+            "$runtimeCache = \"$env:APPDATA\\leigod\"",
+            "if (Test-Path $runtimeCache)",
+            "    {Remove-Item $runtimeCache -Force -Recurse}"
+        ]
+    },
     "shortcuts": [
         [
             "leigod.exe",
@@ -23,9 +30,11 @@
     "checkver": {
         "url": "https://www.leigod.com/configs.json",
         "jsonpath": "$.windows.download_url",
-        "regex": "LeiGodSetup\\.(\\d+\\.\\d+\\.\\d+\\.\\d+)\\.exe"
+        "regex": "\\/\\/update.leigod.com\\/soft\\/win\\/(?<build>[\\d.]+)\\/LeiGodSetup.(?<ver>[\\d.]+).exe",
+        "replace": "${ver}.${build}"
     },
     "autoupdate": {
-        "url": "https://update.leigod.com/soft/channel/LeiGodSetup_steam.exe#/dl.7z"
-    }
+        "url": "https://update.leigod.com/soft/win/$matchBuild/LeiGodSetup.$matchVer.exe#/dl.7z"
+    },
+    "notes": [ "Config Directory: $env:APPDATA\\leigod\\, will be removed with \"scoop uninstall leigod -p\"" ]
 }
