@@ -24,7 +24,10 @@
     "extract_dir": "v2rayN",
     "pre_install": [
         "New-Item -ItemType SymbolicLink -Path \"$dir\\bin\\Xray\\xray.exe\" -Target \"$(appdir xray $global)\\current\\xray.exe\" | Out-Null ",
-        "New-Item -ItemType SymbolicLink -Path \"$dir\\bin\\tuic\tuic-client.exe\" -Target \"$(appdir tuic $global)\\current\\tuic-client.exe\" | Out-Null"
+        "New-Item -ItemType SymbolicLink -Path \"$dir\\bin\\tuic\\tuic-client.exe\" -Target \"$(appdir tuic $global)\\current\\tuic-client.exe\" | Out-Null"
+    ],
+    "post_install": [
+        "Remove-Item -Path \"$dir\\guiConfigs.original\" -Recurse -Force"
     ],
     "bin": "v2rayN.exe",
     "shortcuts": [

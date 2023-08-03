@@ -16,20 +16,10 @@
     ],
     "installer": {
         "script": [
-            "@('LoyalsoldierSite.dat', 'LoyalsoldierGeoIP.dat', 'geosite.dat', 'geoip.dat') | ForEach-Object { Remove-Item \"$(appdir xray $global)\\current\\$_\" -Force -ErrorAction SilentlyContinue }",
-            "New-Item \"$(appdir xray $global)\\current\\LoyalsoldierSite.dat\" -ItemType HardLink -Target \"$dir\\geosite.dat\" | Out-Null",
-            "New-Item \"$(appdir xray $global)\\current\\LoyalsoldierIP.dat\" -ItemType HardLink -Target \"$dir\\geoip.dat\" | Out-Null",
+            "@('geosite.dat', 'geoip.dat') | ForEach-Object { Remove-Item \"$(appdir xray $global)\\current\\$_\" -Force -ErrorAction SilentlyContinue }",
             "New-Item \"$(appdir xray $global)\\current\\geosite.dat\" -ItemType HardLink -Target \"$dir\\geosite.dat\" | Out-Null",
             "New-Item \"$(appdir xray $global)\\current\\geoip.dat\" -ItemType HardLink -Target \"$dir\\geoip.dat\" | Out-Null",
             "Write-Host \"v2ray-rules-dat installation finished, it's suggested to restart your applications using v2ray-rules-dat now.\" -ForegroundColor Magenta"
-        ]
-    },
-    "uninstaller": {
-        "script": [
-            "Remove-Item \"$(appdir xray $global)\\current\\LoyalsoldierIP.dat\" -Force -ErrorAction 'SilentlyContinue'",
-            "Remove-Item \"$(appdir xray $global)\\current\\LoyalsoldierSite.dat\" -Force -ErrorAction 'SilentlyContinue'",
-            "Remove-Item \"$(appdir xray $global)\\current\\geosite.dat\" -Force -ErrorAction 'SilentlyContinue'",
-            "Remove-Item \"$(appdir xray $global)\\current\\geoip.dat\" -Force -ErrorAction 'SilentlyContinue'"
         ]
     },
     "env_set": {
