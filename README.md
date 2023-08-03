@@ -8,6 +8,5 @@ scoop bucket add maoyeedy_scoop https://github.com/maoyeedy/scoop
 ```
 To install:
 ```
-scoop install processing4
-scoop install ...
+scoop install $appname
 ```
