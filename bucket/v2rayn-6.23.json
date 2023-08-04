@@ -3,7 +3,7 @@
     "description": "A V2Ray client for Windows, support Xray & v2fly core",
     "homepage": "https://github.com/2dust/v2rayN",
     "license": "GPL-3.0-only",
-    "depends": [ "maoyeedy_scoop/xray", "maoyeedy_scoop/tuic" ],
+    "depends": [ "maoyeedy_scoop/xray", "maoyeedy_scoop/tuic-client" ],
     "suggest": {
         ".NET Desktop Runtime": "extras/windowsdesktop-runtime-lts"
     },
@@ -24,7 +24,7 @@
     "extract_dir": "v2rayN",
     "pre_install": [
         "New-Item -ItemType SymbolicLink -Path \"$dir\\bin\\Xray\\xray.exe\" -Target \"$(appdir xray $global)\\current\\xray.exe\" | Out-Null ",
-        "New-Item -ItemType SymbolicLink -Path \"$dir\\bin\\tuic\\tuic-client.exe\" -Target \"$(appdir tuic $global)\\current\\tuic-client.exe\" | Out-Null"
+        "New-Item -ItemType SymbolicLink -Path \"$dir\\bin\\tuic\\tuic-client.exe\" -Target \"$(appdir tuic-client $global)\\current\\tuic-client.exe\" | Out-Null"
     ],
     "post_install": [
         "Remove-Item -Path \"$dir\\guiConfigs.original\" -Recurse -Force"
@@ -33,22 +33,8 @@
     "shortcuts": [
         [
             "v2rayN.exe",
-            "v2rayN"
+            "v2rayN-6.23"
         ]
     ],
-    "persist": "guiConfigs",
-    "checkver": "github",
-    "autoupdate": {
-        "architecture": {
-            "64bit": {
-                "url": "https://github.com/2dust/v2rayN/releases/download/$version/v2rayN.zip"
-            },
-            "32bit": {
-                "url": "https://github.com/2dust/v2rayN/releases/download/$version/v2rayN-32.zip"
-            },
-            "arm64": {
-                "url": "https://github.com/2dust/v2rayN/releases/download/$version/v2rayN-arm64.zip"
-            }
-        }
-    }
+    "persist": "guiConfigs"
 }

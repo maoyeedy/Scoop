@@ -14,12 +14,9 @@
         }
     },
     "pre_install": [
-        "function CreateFile ($name, $value = $null) {",
-        "    if (!(Test-Path \"$persist_dir\\$name\")) {",
-        "        Set-Content \"$dir\\$name\" $value -Encoding Ascii",
-        "    }",
+        "if (!(Test-Path \"$persist_dir\\config.json\")) {",
+        "    Set-Content \"$dir\\config.json\" '{}' -Encoding 'Ascii'",
         "}",
-        "CreateFile 'config.json' ",
         "Rename-Item \"$dir\\tuic-client-*.exe\" \"$dir\\tuic-client.exe\""
     ],
     "persist": "config.json",
