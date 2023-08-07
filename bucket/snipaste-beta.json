@@ -13,9 +13,9 @@
             "hash": "sha1:ab8d6b496c538d1f4103e6f6a4531a67441b374b"
         }
     },
-    "pre_install": "if (Test-Path \"$persist_dir\\config.ini\") { Copy-Item \"$persist_dir\\config.ini\" \"$dir\\config.ini\" }",
+    "pre_install": "if (Test-Path \"$persist_dir\\config.ini\") { Rename-Item \"$persist_dir\\config.ini\" 'config.txt'; Copy-Item \"$persist_dir\\config.txt\" \"$dir\\config.txt\"; Rename-Item \"$dir\\config.txt\" 'config.ini'; }",
     "persist": "history",
-    "pre_uninstall": "if (Test-Path \"$dir\\config.ini\") { Copy-Item \"$dir\\config.ini\" \"$persist_dir\\config.ini\" }",
+    "pre_uninstall": "if (Test-Path \"$dir\\config.ini\") { Rename-Item \"$dir\\config.ini\" 'config.txt'; Copy-Item \"$dir\\config.txt\" \"$persist_dir\\config.txt\"; Rename-Item \"$persist_dir\\config.txt\" 'config.ini'; }",
     "bin": "Snipaste.exe",
     "shortcuts": [
         [
