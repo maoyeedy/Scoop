@@ -2,11 +2,11 @@
 
 ### Yeedy's bucket for [Scoop Installer](https://scoop.sh)
 
-To add this bucket:
+Initialize:
 ```
 scoop bucket add maoyeedy_scoop https://github.com/maoyeedy/scoop
 ```
-To install:
+Install:
 ```
 scoop install $appname
 ```
