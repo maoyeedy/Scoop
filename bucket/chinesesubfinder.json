@@ -19,6 +19,9 @@
             "64bit": {
                 "url": "https://github.com/ChineseSubFinder/ChineseSubFinder/releases/download/v$version/chinesesubfinder_Windows-x86_64_$version.tar.gz"
             }
+        },
+        "hash": {
+            "url": "$baseurl/checksums.txt"
         }
     }
 }
