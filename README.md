@@ -16,6 +16,7 @@ scoop install $manifest
 
 #### CLI apps
 - [FBX2glTF](bucket/FBX2glTF.json)
+- [FbxFormatConverter](bucket/FbxFormatConverter.json)
 - [jaq](bucket/jaq.json)
 - [cpz](bucket/cpz.json)
 - [rmz](bucket/rmz.json)
