@@ -1,0 +1,29 @@
+{
+    "homepage": "https://github.com/hiroi-sora/Umi-OCR",
+    "description": "Offline OCR image-to-text tool.",
+    "version": "2.0.1",
+    "license": "MIT",
+    "url": "https://github.com/hiroi-sora/Umi-OCR/releases/download/release%2F2.0.1/Umi-OCR_Paddle_v2.0.1.7z.exe#/dl.7z",
+    "hash": "cb51be5c37f69ef6a4a5288c591051d240cf233929daff233a6e957c5eea600d",
+    "extract_dir": "Umi-OCR_Paddle_v2.0.1",
+    "bin": "Umi-OCR.exe",
+    "shortcuts": [
+        [
+            "Umi-OCR.exe",
+            "Umi-OCR"
+        ]
+    ],
+    "persist": "UmiOCR-data\\.settings",
+    "pre_install": "if (-not (Test-Path \"$persist_dir\\.settings\")) { New-Item \"$dir\\UmiOCR-data\\.settings\" | Out-Null }",
+    "uninstaller": {
+        "script": "if ((Test-Path \"$dir\\UmiOCR-data\\.settings\") -and !(Get-Item \"$dir\\UmiOCR-data\\.settings\").LinkType -and (Test-Path $persist_dir\\UmiOCR-data)) { Copy-Item \"$dir\\UmiOCR-data\\.settings\" $persist_dir\\UmiOCR-data -Force }"
+    },
+    "checkver": {
+        "url": "https://github.com/hiroi-sora/Umi-OCR/releases/latest",
+        "regex": "Release Umi-OCR v([\\d.]+)"
+    },
+    "autoupdate": {
+        "url": "https://github.com/hiroi-sora/Umi-OCR/releases/download/release%2F$version/Umi-OCR_Paddle_v$version.7z.exe#/dl.7z",
+        "extract_dir": "Umi-OCR_Paddle_v$version"
+    }
+}
