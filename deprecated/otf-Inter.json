@@ -3,14 +3,14 @@
     "description": "A typeface specially designed for user interfaces with focus on high legibility of small-to-medium sized text on computer screens.",
     "homepage": "https://rsms.me/inter/",
     "license": "OFL-1.1",
-    "url": "https://ghproxy.net/https://github.com/rsms/inter/releases/download/v4.0/Inter-4.0.zip",
+    "url": "https://github.com/rsms/inter/releases/download/v4.0/Inter-4.0.zip",
     "hash": "ff970a5d4561a04f102a7cb781adbd6ac4e9b6c460914c7a101f15acb7f7d1a4",
-    "extract_dir": "Inter Desktop",
+    "extract_dir": "Inter-4.0/extras/otf",
     "checkver": {
         "github": "https://github.com/rsms/inter"
     },
     "autoupdate": {
-        "url": "https://ghproxy.net/https://github.com/rsms/inter/releases/download/v$version/Inter-$version.zip"
+        "url": "https://github.com/rsms/inter/releases/download/v$version/Inter-$version.zip"
     },
     "installer": {
         "script": [
