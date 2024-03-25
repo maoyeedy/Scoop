@@ -26,3 +26,7 @@ scoop install $manifest
 - [leigod](bucket/leigod.json)
 - [unity2022lts](bucket/unity2022lts.json)
 - [window-centering-helper](bucket/window-centering-helper.json)
+
+#### Official FAQ
+
+[](https://github.com/ScoopInstaller/Scoop/wiki/FAQ)
