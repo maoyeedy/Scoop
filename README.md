@@ -29,4 +29,4 @@ scoop install $manifest
 
 #### Official FAQ
 
-[](https://github.com/ScoopInstaller/Scoop/wiki/FAQ)
+[Link](https://github.com/ScoopInstaller/Scoop/wiki/FAQ)
