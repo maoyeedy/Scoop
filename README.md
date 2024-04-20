@@ -12,7 +12,7 @@ To Install a manifest from [bucket folder](bucket/):
 scoop install $manifest
 ```
 
-### The manifests I wrote:
+### Manifests that I maintain:
 
 #### CLI apps
 - [FBX2glTF](bucket/FBX2glTF.json)
