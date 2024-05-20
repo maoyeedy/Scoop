@@ -7,9 +7,13 @@ To start with:
 ```
 scoop bucket add maoyeedy_scoop https://github.com/maoyeedy/scoop
 ```
-To Install a manifest from [bucket folder](bucket/):
+To install a manifest from [bucket folder](bucket/):
 ```
 scoop install $manifest
+```
+To manually update:
+```
+.\bin\checkver.ps1 -Update
 ```
 
 ### Manifests that I maintain:
