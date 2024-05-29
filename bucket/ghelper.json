@@ -1,14 +1,19 @@
 {
-  "version": "v0.170",
-  "description": "Lightweight control tool for ASUS laptops",
-  "homepage": "https://github.com/seerge/g-helper",
-  "license": "GPL-3.0",
-  "url": "https://github.com/seerge/g-helper/releases/download/v0.170/GHelper.zip",
-  "hash": "f83d6add4d4a20107a5ce55b68106793c8d422194dcd02bad246a5ad99d2dcd9",
-  "bin": "GHelper.exe",
-  "shortcuts": [ [ "GHelper.exe", "GHelper" ] ],
-  "checkver": "github",
-  "autoupdate": {
-    "url": "https://github.com/seerge/g-helper/releases/download/$version/GHelper.zip"
-  }
+    "version": "0.173",
+    "description": "Lightweight control tool for ASUS laptops",
+    "homepage": "https://github.com/seerge/g-helper",
+    "license": "GPL-3.0",
+    "url": "https://github.com/seerge/g-helper/releases/download/v0.173/GHelper.zip",
+    "hash": "3be68f701a71035487c54b75fe4483751069d5a39ae88986bae852e4afb1a2de",
+    "bin": "GHelper.exe",
+    "shortcuts": [
+        [
+            "GHelper.exe",
+            "GHelper"
+        ]
+    ],
+    "checkver": "github",
+    "autoupdate": {
+        "url": "https://github.com/seerge/g-helper/releases/download/v$version/GHelper.zip"
+    }
 }
