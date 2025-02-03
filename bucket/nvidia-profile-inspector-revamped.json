@@ -1,10 +1,10 @@
 {
-    "version": "3.4",
+    "version": "3.5",
     "description": "A more modern version of Nvidia Profile Inspector - all features supported & easy to use ",
     "homepage": "https://github.com/xHybred/NvidiaProfileInspectorRevamped",
     "license": "MIT",
-    "url": "https://github.com/xHybred/NvidiaProfileInspectorRevamped/releases/download/v3.4/NVPI-Revamped.zip",
-    "hash": "ec150b188b84e4b3f48434f2d4cd7495768d0cbeba86eac7df96f7d90ff5e7e9",
+    "url": "https://github.com/xHybred/NvidiaProfileInspectorRevamped/releases/download/v3.5/NVPI-Revamped.zip",
+    "hash": "c6138013824807a7309ab0e25e920bd4c4e7e9b9c9fc1aea1bf4684dc9fc2ea3",
     "extract_dir": "NV-Profile-Inspector-Revamped",
     "bin": "nvidiaProfileInspector.exe",
     "shortcuts": [
