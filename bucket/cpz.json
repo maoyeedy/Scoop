@@ -1,16 +1,16 @@
 {
-    "version": "2.1.0",
+    "version": "2.2.0",
     "description": "Modern, performance focused unix commands.",
     "homepage": "https://github.com/SUPERCILEX/fuc/",
     "license": "MIT",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/SUPERCILEX/fuc/releases/download/2.1.0/cpz-x86_64-pc-windows-msvc.exe",
-            "hash": "67133e68471e3127293c68a71595a4276d503e1018d7a398d290331ca5d58021"
+            "url": "https://github.com/SUPERCILEX/fuc/releases/download/2.2.0/cpz-x86_64-pc-windows-msvc.exe",
+            "hash": "16539df1d7781a6d2364ca21776f48b10805f33439a0fc85c2adcee2c652ceae"
         },
         "arm64": {
-            "url": "https://github.com/SUPERCILEX/fuc/releases/download/2.1.0/cpz-aarch64-pc-windows-msvc.exe",
-            "hash": "0f2d818b81d2838ab6e1f2ccd744ada7afdc9822cb8c165fa42ba08a7a90522b"
+            "url": "https://github.com/SUPERCILEX/fuc/releases/download/2.2.0/cpz-aarch64-pc-windows-msvc.exe",
+            "hash": "a8298e83ce1b2cd01577efb9e84bbf61d271f511ce0c0fc4c525ce1833f55d56"
         }
     },
     "pre_install": "Rename-Item \"$dir\\cpz-*.exe\" \"$dir\\cpz.exe\"",
