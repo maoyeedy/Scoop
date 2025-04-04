@@ -16,6 +16,11 @@ To manually update:
 .\bin\checkver.ps1 -Update
 ```
 
+To check github repo latest release:
+```
+https://api.github.com/repos/$UserName/$RepoName/releases/latest
+```
+
 ### Manifests that I maintain:
 
 #### CLI apps
