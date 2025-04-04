@@ -13,7 +13,7 @@
             "hash": "0974168389fac95de49f1ca304af8ee69484e0238f89ab8aabdd9592587f7e7c"
         }
     },
-    "pre_install": "Rename-Item \"$dir\\rmz-*.exe\" \"$dir\\rmz.exe\"",
+    "pre_install": "Rename-Item \"$dir\\*-rmz.exe\" \"$dir\\rmz.exe\"",
     "bin": "rmz.exe",
     "checkver": "github",
     "autoupdate": {
