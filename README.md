@@ -21,6 +21,11 @@ To check github repo latest release:
 https://api.github.com/repos/$UserName/$RepoName/releases/latest
 ```
 
+To see json of a manifest:
+```
+scoop cat $manifest
+```
+
 ### Manifests that I maintain:
 
 #### CLI apps
