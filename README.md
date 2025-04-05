@@ -29,12 +29,12 @@ scoop cat $manifest
 #### CLI apps
 - [FBX2glTF](bucket/FBX2glTF.json)
 - [FbxFormatConverter](bucket/FbxFormatConverter.json)
-- [jaq](bucket/jaq.json)
 - [cpz](bucket/cpz.json)
 - [rmz](bucket/rmz.json)
 
 #### GUI apps
 - [blender-aliyun](bucket/blender-aliyun.json)
+- [uu](bucket/uu.json)
 - [leigod](bucket/leigod.json)
 - [unity2022lts](bucket/unity2022lts.json)
 - [window-centering-helper](bucket/window-centering-helper.json)
