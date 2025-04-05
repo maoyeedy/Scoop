@@ -1,7 +1,5 @@
-# Yeedy's Scoop Bucket
+# My Bucket for [Scoop](https://scoop.sh)
 [![Tests](https://github.com/maoyeedy/yeedyscoop/actions/workflows/ci.yml/badge.svg)](https://github.com/maoyeedy/yeedyscoop/actions/workflows/ci.yml) [![Excavator](https://github.com/maoyeedy/yeedyscoop/actions/workflows/excavator.yml/badge.svg)](https://github.com/maoyeedy/yeedyscoop/actions/workflows/excavator.yml)
-
-### A Bucket for [Scoop](https://scoop.sh)
 
 To start with:
 ```
