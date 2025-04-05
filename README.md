@@ -1,4 +1,4 @@
-# My Bucket for [Scoop](https://scoop.sh)
+# Maoyeedy's [Scoop](https://scoop.sh) Bucket
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Maoyeedy/Scoop/ci.yml?branch=master&label=Tests&style=flat-square)](https://github.com/Maoyeedy/Scoop/actions/workflows/ci.yml)  [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Maoyeedy/Scoop/excavator.yml?branch=master&label=Excavator&style=flat-square)](https://github.com/Maoyeedy/Scoop/actions/workflows/excavator.yml)  [![License](https://img.shields.io/github/license/Maoyeedy/Scoop?label=License&style=flat-square)](https://github.com/Maoyeedy/Scoop/blob/master/LICENSE)  [![Target-Windows](https://img.shields.io/badge/Target-Windows-blue?style=flat-square)](https://www.microsoft.com/en-us/windows)  [![GitHub repo size](https://img.shields.io/github/repo-size/Maoyeedy/Scoop?style=flat-square)](https://github.com/Maoyeedy/Scoop)
 
