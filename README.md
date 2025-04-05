@@ -34,8 +34,9 @@ scoop cat $manifest
 - [rmz](bucket/rmz.json)
 
 #### GUI apps
+- [unity2022lts](bucket/unity2022lts.json)
+- [unity6000lts](bucket/unity6000lts.json)
+- [window-centering-helper](bucket/window-centering-helper.json)
 - [blender-aliyun](bucket/blender-aliyun.json)
 - [uu](bucket/uu.json)
 - [leigod](bucket/leigod.json)
-- [unity2022lts](bucket/unity2022lts.json)
-- [window-centering-helper](bucket/window-centering-helper.json)
