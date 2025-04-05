@@ -5,7 +5,11 @@ on:
     branches:
       - 'main'
       - 'master'
+    paths:
+      - 'bucket/**'
   pull_request:
+    paths:
+      - 'bucket/**'
   workflow_dispatch:
 
 jobs:
