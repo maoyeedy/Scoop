@@ -28,15 +28,16 @@ scoop cat $manifest
 ### Manifests that I maintain:
 
 #### CLI apps
-- [FBX2glTF](bucket/FBX2glTF.json)
-- [FbxFormatConverter](bucket/FbxFormatConverter.json)
-- [cpz](bucket/cpz.json)
-- [rmz](bucket/rmz.json)
+- [FBX2glTF](./bucket/FBX2glTF.json)
+- [FbxFormatConverter](./bucket/FbxFormatConverter.json)
+- [cpz](./bucket/cpz.json)
+- [rmz](./bucket/rmz.json)
 
 #### GUI apps
-- [unity2022lts](bucket/unity2022lts.json)
-- [unity6000lts](bucket/unity6000lts.json)
-- [window-centering-helper](bucket/window-centering-helper.json)
-- [blender-aliyun](bucket/blender-aliyun.json)
-- [uu](bucket/uu.json)
-- [leigod](bucket/leigod.json)
+- [unity2022lts](./bucket/unity2022lts.json)
+- [unity6000lts](./bucket/unity6000lts.json)
+- [blender-aliyun](./bucket/blender-aliyun.json)
+- [uu](./bucket/uu.json)
+- [leigod](./bucket/leigod.json)
+- [window-centering-helper](./bucket/window-centering-helper.json)
+- [ChineseSubFinder](./bucket/chinesesubfinder.json)
