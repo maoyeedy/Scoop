@@ -32,6 +32,7 @@ scoop cat $manifest
 - [FbxFormatConverter](./bucket/FbxFormatConverter.json)
 - [cpz](./bucket/cpz.json)
 - [rmz](./bucket/rmz.json)
+- [ptr](./bucket/ptr.json)
 
 #### GUI apps
 - [unity2022lts](./bucket/unity2022lts.json)
