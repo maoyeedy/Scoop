@@ -17,9 +17,7 @@
         }
     },
     "bin": "ptr.exe",
-    "checkver": {
-        "github": "https://github.com/8LWXpg/ptr"
-    },
+    "checkver": "github",
     "autoupdate": {
         "architecture": {
             "64bit": {
