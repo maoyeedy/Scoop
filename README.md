@@ -43,3 +43,5 @@ scoop cat $manifest
 - [leigod](./bucket/leigod.json)
 - [window-centering-helper](./bucket/window-centering-helper.json)
 - [ChineseSubFinder](./bucket/chinesesubfinder.json)
+
+If you experience any issues with above manifests, Issues and Pull Requests are welcome!
