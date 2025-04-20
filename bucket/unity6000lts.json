@@ -25,7 +25,7 @@
     },
     "bin": "Editor\\Unity.exe",
     "checkver": {
-        "script": [ "scripts\\unitylts-checkver-6000.ps1" ],
+        "script": "scripts\\unitylts-checkver-6000.ps1",
         "regex": "([\\d.]+f\\d)\\|([a-zA-Z0-9]+)"
     },
     "autoupdate": {
