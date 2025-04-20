@@ -33,6 +33,7 @@ scoop cat $manifest
 - [cpz](./bucket/cpz.json)
 - [rmz](./bucket/rmz.json)
 - [ptr](./bucket/ptr.json)
+- [minhtml](./bucket/minhtml.json)
 
 #### GUI apps
 - [unity2022lts](./bucket/unity2022lts.json)
