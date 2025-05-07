@@ -46,4 +46,4 @@ scoop cat $manifest
 - [window-centering-helper](./bucket/window-centering-helper.json)
 - [ChineseSubFinder](./bucket/chinesesubfinder.json)
 
-If you experience any issues with above manifests, Issues and Pull Requests are welcome!
+If you encounter any problem with above manifests, open an issue and I'll fix it asap.
