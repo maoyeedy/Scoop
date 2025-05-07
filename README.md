@@ -35,6 +35,7 @@ scoop cat $manifest
 - [ptr](./bucket/ptr.json)
 - [minhtml](./bucket/minhtml.json)
 - [unity-meta-check](./bucket/unity-meta-check.json)
+- [unity-roslyn-updater](./bucket/unity-roslyn-updater.json)`
 
 #### GUI apps
 - [unity2022lts](./bucket/unity2022lts.json)
