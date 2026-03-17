@@ -6,3 +6,4 @@ checkver-*.html
 GitTip.txt
 
 repomix-output.xml
+.claude/settings.local.json
