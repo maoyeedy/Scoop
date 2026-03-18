@@ -21,7 +21,7 @@ These must be installed (all available via `scoop install <name>`):
 | `jq` | `jq` | Probe JSON API endpoints when writing `checkver.jp` |
 | `htmlq` | `htmlq` | Probe HTML pages with CSS selectors when writing `checkver.regex` |
 | `curl` | `curl` | Fetch URLs manually to inspect version sources |
-| PowerShell 5.1+ | built-in | Run all `bin/*.ps1` scripts |
+| `pwsh` | `pwsh` | Run all `bin/*.ps1` scripts (use `pwsh -NoProfile`, not `powershell`) |
 | Scoop itself | — | Provides `bin/checkver.ps1`, `bin/checkhashes.ps1`, etc. |
 
 Install in one shot:
@@ -34,6 +34,8 @@ scoop install git 7zip jq htmlq curl
 ## Maintenance Commands
 
 All `bin/` scripts are PowerShell wrappers that delegate to `$SCOOP_HOME/bin/`. Run from the repo root.
+
+**Always invoke via `pwsh -NoProfile -Command "..."` — never `powershell`.** `pwsh` (PowerShell 7+) is required; `powershell.exe` (Windows PowerShell 5.1) lacks `Get-FileHash` in this shell context.
 
 ```powershell
 # Check version (single app or all)
