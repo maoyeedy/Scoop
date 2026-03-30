@@ -94,7 +94,9 @@ Extracted and condensed from the official Scoop wiki. Covers everything needed t
 }
 ```
 
-### GitHub latest release (ignores pre-releases)
+### GitHub latest release
+
+Use `gh repo view` for `homepage`, `description`, and `license`, then `gh api repos/<owner>/<repo>/releases/latest` for the release tag and asset names.
 
 ```json
 "homepage": "https://github.com/user/repo",

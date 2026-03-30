@@ -87,14 +87,24 @@ scoop config debug $true
    curl -s "https://example.com/api/versions.json" | jq .
    # HTML page
    curl -s "https://example.com/download" | htmlq "a[href*='.exe']" --attribute href
-   # GitHub API
-   curl -s "https://api.github.com/repos/user/repo/releases/latest" | jq '.tag_name,.assets[].browser_download_url'
+   # GitHub releases
+   gh repo view user/repo --json url,description,licenseInfo -q '{homepage:.url, description:.description, license:.licenseInfo.spdxId}'
+   gh api repos/user/repo/releases/latest --jq '{version:.tag_name, assets:[.assets[] | {name, content_type, browser_download_url}]}'
    ```
 2. Create `bucket/<appname>.json` with `version`, `url`, `hash`, `checkver`, `autoupdate`.
 3. Test autoupdate end-to-end: set `version` to an older value, then run `.\bin\checkver.ps1 <app> -u`. Confirm version, URL, and hash update correctly.
 4. Install locally to verify: `scoop install bucket\<appname>.json`
 5. Format: `.\bin\formatjson.ps1 <appname>`
 6. Commit: `git add bucket\<appname>.json` then commit.
+
+### GitHub Release Workflow
+
+For GitHub-hosted apps, use `gh repo view` for metadata and `gh api repos/<owner>/<repo>/releases/latest` for release assets.
+
+- `gh repo view` provides `homepage`, `description`, and `license`.
+- `gh api .../releases/latest` provides the release `version` and exact asset filenames/URLs.
+- If the project uses normal GitHub releases, prefer `"checkver": "github"`.
+- Only add a filename regex when the asset name is unstable or when you must select a specific OS or architecture binary from multiple assets.
 
 ### Updating an existing manifest
 
