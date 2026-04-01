@@ -46,6 +46,8 @@ Use these instead of manual steps:
 
 **`$version` substitution:** Only works in `autoupdate` URLs. Static `url` fields require literal version strings.
 
+**`checkver: "github"` requires a GitHub homepage:** When `checkver` is `"github"`, `homepage` must be `https://github.com/owner/repo` — checkver reads the repo URL from it. A custom project page causes "expects the homepage to be a github repository" errors.
+
 **Commit messages:**
 - New manifest: `Add <appname>`
 - Update: `<appname>: Update to version X.Y.Z`

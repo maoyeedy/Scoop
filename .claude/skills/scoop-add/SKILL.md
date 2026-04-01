@@ -68,6 +68,7 @@ Based on what you found, pick one:
 - Standard GitHub releases with version tags
 - Download URLs are stable: `https://github.com/<owner>/<repo>/releases/download/v<version>/<asset>`
 - Use `"checkver": "github"` (or `{"github": "<url>"}` if homepage differs from repo)
+- **`homepage` must be the GitHub repo URL** (`https://github.com/owner/repo`) when `checkver` is `"github"` — `checkver` reads the repo URL from `homepage` to find the latest release. A custom project page (e.g. `gruntwork.io`) will cause `checkver` to fail with "expects the homepage to be a github repository".
 - Examples: `fetch.json`, `toasty.json`, `spicetify.json`, `editorconfig-checker.json`
 
 **Pattern B — CDN with non-version tokens**
