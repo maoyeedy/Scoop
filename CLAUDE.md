@@ -38,7 +38,7 @@ Use these instead of manual steps:
 
 ## Key Rules
 
-**Shell:** Always `pwsh -NoProfile`, never `powershell`. Always `git -C "C:/Users/jerkl/scoop/buckets/maoyeedy_scoop" <cmd>` — never `cd`.
+**Shell:** Use `pwsh -NoProfile` for Scoop scripts, never `powershell`. Use `git -C <repo-root>` instead of `cd` for git commands.
 
 **Line endings:** CRLF everywhere (`.gitattributes` sets `eol=crlf`). Overrides the global LF rule.
 
@@ -69,6 +69,15 @@ All scripts run from repo root via `pwsh -NoProfile -Command "..."`.
 | `.\Scoop-Bucket.Tests.ps1` | Run Pester tests |
 
 Debug: `scoop config debug $true` before running checkver to see verbose fetch/regex output.
+
+## Maintenance Commands
+
+| Command | Purpose |
+|---|---|
+| `.\bin\checkurls.ps1 <app>` | Verify manifest URLs |
+| `.\bin\missing-checkver.ps1` | List manifests missing `checkver` |
+| `.\bin\auto-pr.ps1` | Create or update PRs from bucket changes |
+| `.\bin\test.ps1` | Run the bucket test suite in both Windows PowerShell and PowerShell 7 |
 
 ---
 
