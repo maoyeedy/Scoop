@@ -19,8 +19,8 @@ docs/            # Reference documentation
     excavator.yml  # Runs checkver * -u every 4 hours; opens PRs for updates
 .claude/
   skills/
-    scoop-check/           # /scoop-check  — health check: outdated + hash mismatches
-    scoop-create-bucket/   # /scoop-create-bucket — create new manifests safely
+    scoop-audit/   # /scoop-audit — health audit: outdated + hash mismatches
+    scoop-add/     # /scoop-add   — create new manifests safely
 ```
 
 ---
@@ -31,8 +31,8 @@ Use these instead of manual steps:
 
 | Skill | When to use |
 |---|---|
-| `/scoop-check` | Audit bucket health — outdated manifests, hash mismatches |
-| `/scoop-create-bucket` | Add a new manifest to `bucket/` |
+| `/scoop-audit` | Audit bucket health — outdated manifests, hash mismatches |
+| `/scoop-add` | Add a new manifest to `bucket/` |
 
 ---
 
