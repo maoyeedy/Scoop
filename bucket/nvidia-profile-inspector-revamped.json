@@ -6,8 +6,8 @@
     "url": "https://github.com/xHybred/NvidiaProfileInspectorRevamped/releases/download/v7.0.1.0/NVPI-R.zip",
     "hash": "be7d2b59a8c368f477628353238cf0b74575871cf2b5d935f4ffef31ee0deaa9",
     "pre_install": [
-        "Get-ChildItem -LiteralPath \"$dir\\NVPI-R App\" -Exclude 'Community Reskins' | Move-Item -Destination \"$dir\" -Force",
-        "Remove-Item \"$dir\\NVPI-R App\", \"$dir\\Regedits & Profiles\", \"$dir\\ReadMe.txt\" -Recurse -Force -ErrorAction SilentlyContinue"
+        "Get-ChildItem -LiteralPath \"$dir\\NVPI Revamped App\" | Move-Item -Destination \"$dir\" -Force",
+        "Remove-Item \"$dir\\NVPI Revamped App\", \"$dir\\Regedits & Profiles\", \"$dir\\ReadMe.txt\" -Recurse -Force -ErrorAction SilentlyContinue"
     ],
     "bin": "NVPI-R.exe",
     "shortcuts": [
