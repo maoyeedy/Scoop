@@ -1,5 +1,5 @@
 ---
-name: scoop-create-bucket
+name: scoop-add
 description: >
   Create new Scoop bucket manifests from scratch. Use this skill whenever the user wants
   to add a new app to the bucket, create a manifest for a new app, package something for
