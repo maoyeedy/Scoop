@@ -1,0 +1,19 @@
+{
+    "version": "1.15.0",
+    "description": "Lightweight Windows tray app that monitors your Claude rate limits in real time",
+    "homepage": "https://github.com/jens-duttke/usage-monitor-for-claude",
+    "license": "MIT",
+    "url": "https://github.com/jens-duttke/usage-monitor-for-claude/releases/download/v1.15.0/UsageMonitorForClaude.exe#/UsageMonitorForClaude.exe",
+    "hash": "b9cdebe2cf510170b30c9147f574ae46e7e372eee5cce11a143cc48621f6751e",
+    "bin": "UsageMonitorForClaude.exe",
+    "shortcuts": [
+        [
+            "UsageMonitorForClaude.exe",
+            "Usage Monitor for Claude"
+        ]
+    ],
+    "checkver": "github",
+    "autoupdate": {
+        "url": "https://github.com/jens-duttke/usage-monitor-for-claude/releases/download/v$version/UsageMonitorForClaude.exe#/UsageMonitorForClaude.exe"
+    }
+}
