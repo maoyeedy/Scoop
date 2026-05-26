@@ -191,12 +191,36 @@ Unnamed groups `${1}`, `${2}` feed into `replace`:
 
 ### PowerShell script (complex cases)
 
+Script output becomes `$page`, then `regex`/`jsonpath`/`xpath` extracts version from it.
+
+**IMPORTANT:** `checkver.url` (or `homepage` as fallback) MUST resolve successfully — if the URL download fails, the script never runs.
+
 ```json
 "checkver": {
+    "url": "https://example.com/download/app.exe",
+    "script": [
+        "$tmp = \"$env:TEMP\\app_$([System.IO.Path]::GetRandomFileName())\"",
+        "Invoke-WebRequest -Uri 'https://example.com/download/app.exe' -OutFile $tmp -UseBasicParsing",
+        "$ver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($tmp).FileVersion",
+        "Remove-Item $tmp -Force -ErrorAction SilentlyContinue",
+        "Write-Output $ver"
+    ],
+    "regex": "([\\d.]+)"
+}
+```
+
+This pattern is useful when the only reliable version source is embedded in a binary (EXE/DLL) PE header. The `regex` captures any version-like string from the script's stdout.
+
+A simpler script example (when version is on a web page):
+
+```json
+"checkver": {
+    "url": "https://example.com/download.html",
     "script": [
         "$page = Invoke-WebRequest 'https://example.com'",
         "if ($page.Content -match 'Version: ([\\d.]+)') { $matches[1] }"
-    ]
+    ],
+    "regex": "([\\d.]+)"
 }
 ```
 
@@ -322,6 +346,20 @@ Append a suffix to the download URL:
 }
 ```
 
+### From GitHub releases API (digest field)
+
+GitHub releases include a `digest` field on each asset (format `sha256:hexdigest`). Scoop strips the `sha256:` prefix automatically:
+
+```json
+"hash": {
+    "mode": "json",
+    "url": "https://api.github.com/repos/owner/repo/releases/latest",
+    "jp": "$..assets[?(@.name=='App-$version-Windows.zip')].digest"
+}
+```
+
+Use this when the release assets have `.digest` in the API response — avoids downloading the file just to compute its hash.
+
 ### From an XML/RDF file
 
 ```json
@@ -359,7 +397,7 @@ URLs matching these domains auto-detect hash mode — no `hash` block needed:
 | `mode` | enum | `extract` (default), `json`, `xpath`, `rdf`, `metalink`, `fosshub`, `sourceforge`, `download` |
 | `url` | uri | URL to hash file. Supports all variable types. |
 | `regex` / `find` | regex | Pattern to extract hash from text |
-| `jsonpath` / `jp` | jsonpath | JSONPath to hash value |
+| `jsonpath` / `jp` | jsonpath | JSONPath to hash value. `sha256:` prefix in matched value is auto-stripped. |
 | `xpath` | string | XPath to hash value |
 
 ---
