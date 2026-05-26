@@ -48,6 +48,14 @@ Use these instead of manual steps:
 
 **`checkver: "github"` requires a GitHub homepage:** When `checkver` is `"github"`, `homepage` must be `https://github.com/owner/repo` — checkver reads the repo URL from it. A custom project page causes "expects the homepage to be a github repository" errors.
 
+**`checkver.script` requires a working URL:** Even when using `script`, `checkver.url` (or `homepage` as fallback) must resolve successfully — the script never runs if the URL download fails. Set `checkver.url` to a known-working URL like the download URL itself.
+
+**GitHub release asset renames break autoupdate.url:** When a project renames their release asset, `checkver: "github"` still detects the new version, but `autoupdate.url` will 404. Manually update the asset name pattern.
+
+**`.zip` to `.exe` migration:** When a portable release changes from `.zip` archive to standalone `.exe`, update the URL directly and use `#/appname.exe` fragment to rename. No `extract_dir` needed.
+
+**Hash extraction from GitHub API:** Use `autoupdate.hash` with `mode: json` and `jp` expression to extract `.digest` field (format `sha256:hex` — prefix auto-stripped). Avoids downloading the asset just for hashing.
+
 **Commit messages:**
 - New manifest: `Add <appname>`
 - Update: `<appname>: Update to version X.Y.Z`
