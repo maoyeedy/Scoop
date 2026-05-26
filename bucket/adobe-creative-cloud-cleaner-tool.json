@@ -4,7 +4,7 @@
     "homepage": "https://helpx.adobe.com/creative-cloud/apps/troubleshoot/diagnostics-repair-tools/run-creative-cloud-cleaner-tool.html",
     "license": "Unknown",
     "url": "https://swupmf.adobe.com/webfeed/CleanerTool/win/AdobeCreativeCloudCleanerTool.exe#/dl.7z",
-    "hash": "",
+    "hash": "23700b61ee527d11e22e9fb86ecd67110fded4f81c8dfa5656306a33ff3105db",
     "pre_install": "Rename-Item -Path \"$dir\\ACToolMain.exe\" -NewName 'AdobeCreativeCloudCleanerTool.exe'",
     "bin": "AdobeCreativeCloudCleanerTool.exe",
     "checkver": {
