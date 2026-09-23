@@ -1,10 +1,10 @@
 {
-    "version": "7.0.2.0",
+    "version": "7.2.1.0",
     "description": "A more modern version of Nvidia Profile Inspector - all features supported & easy to use",
     "homepage": "https://github.com/xHybred/NvidiaProfileInspectorRevamped",
     "license": "MIT",
-    "url": "https://github.com/xHybred/NvidiaProfileInspectorRevamped/releases/download/v7.0.2.0/NVPIRevamped.zip",
-    "hash": "e86107a731d880df74c5682253d3db6fc760e4857237b0a6834e029f4f5bc02c",
+    "url": "https://github.com/xHybred/NvidiaProfileInspectorRevamped/releases/download/v7.2.1.0/NVPI-R.zip",
+    "hash": "6f979a7f27cb9bb814b54e44e019b3cf1b649134dacf80bb762d054802966b51",
     "bin": "NVPI-R.exe",
     "shortcuts": [
         [
@@ -14,11 +14,11 @@
     ],
     "checkver": "github",
     "autoupdate": {
-        "url": "https://github.com/xHybred/NvidiaProfileInspectorRevamped/releases/download/v$version/NVPIRevamped.zip",
+        "url": "https://github.com/xHybred/NvidiaProfileInspectorRevamped/releases/download/v$version/NVPI-R.zip",
         "hash": {
             "mode": "json",
             "url": "https://api.github.com/repos/xHybred/NvidiaProfileInspectorRevamped/releases/latest",
-            "jp": "$..assets[?(@.name=='NVPIRevamped.zip')].digest"
+            "jp": "$..assets[?(@.name=='NVPI-R.zip')].digest"
         }
     }
 }
