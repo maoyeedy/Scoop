@@ -307,7 +307,7 @@ pwsh -NoProfile -Command "
 "
 ```
 
-Expected: `Downloading ...` then `Computed hash: <64 hex>`, and the manifest now holds the real hash. No download line means `autoupdate.url` is missing or empty.
+Expected: `Downloading ...` then `Computed hash: <64 hex>`, and the manifest now holds the real hash. No download line means `autoupdate.url` is missing or empty, or `hash` was emptied (`""`) instead of set to zeros -- the empty case takes the `architecture` branch, errors on `Get-Member` and changes nothing.
 
 **3. Install test:**
 ```powershell
@@ -339,7 +339,7 @@ Commit message format for new manifests: `Add <appname>` (matches repo history: 
 | Placeholder hashes with `checkhashes.ps1` | `-Update` on `""` errors on a null method call and changes nothing; unequal url/hash arrays print `URLS and hashes count mismatch` | Compute hashes manually with `Get-FileHash`; skip `checkhashes.ps1` for new manifests |
 | `autoupdate.hash` with `mode: "download"` but no `autoupdate.url` | `checkver -u -f` exits 0 and writes `"hash": ""` | Add a version-less `autoupdate.url`; it may repeat the static `url` |
 | `"hash": ""` in a committed manifest | Install only warns `No hash in manifest` and proceeds unverified (`download.ps1:730`); Excavator never fills it | Seed a real hash; Scoop only updates a non-empty top-level hash |
-| `checkver -f` "passes" but hash was never computed | Same manifest hash rewritten, no download log | Zero the hash and use a cold `SCOOP_CACHE`, then look for `Computed hash:` |
+| `checkver -f` "passes" but hash was never computed | Same manifest hash rewritten, no download log | Use a deliberately wrong **non-empty** hash and a cold `SCOOP_CACHE`, then look for `Computed hash:`. An empty hash takes the `architecture` branch and stays empty |
 | URL fragment in `Invoke-WebRequest` | File downloads as empty or errors | Strip `#/...` fragment before constructing the download URL |
 | `'$env:TEMP'` inside single quotes | Download lands in `<cwd>\$env:TEMP\...` and fails | Use `Join-Path $env:TEMP "file"` (the outer `-Command` string is the single-quoted one) |
 | Wrong named capture casing | `$match` variable resolves empty | Title case via .NET, so `(?<buildId>...)` → `$matchBuildid`, not `$matchBuildId`. Keep group names one lowercase word |

@@ -64,7 +64,7 @@ Use these instead of manual steps:
 
 **`hash` only covers `url`:** files fetched inside `pre_install` are never verified, and a vendor API/landing page that rotates tokens cannot be hashed. If the real artifact has a stable public URL, point `url` at it and let Scoop hash that (see `uu.json`).
 
-**`checkver <app> -u -f` can pass without computing anything:** if the hash is already correct, it rewrites the same value. To prove the hash path works, zero the hash, point `SCOOP_CACHE` at an empty temp dir, run `-u -f`, and expect a `Downloading ...` + `Computed hash:` line.
+**`checkver <app> -u -f` can pass without computing anything:** if the hash is already correct, it rewrites the same value. To prove the hash path works, replace the hash with a wrong **non-empty** value (64 zeros), point `SCOOP_CACHE` at an empty temp dir, run `-u -f`, and expect a `Downloading ...` + `Computed hash:` line. Do not empty the hash: autoupdate only takes the global-hash branch when `$Manifest.hash` is truthy; otherwise it walks `architecture`, and on a manifest without one `Get-Member` on `$null` errors while the manifest is still written with the empty hash (`lib/autoupdate.ps1:383-399`).
 
 **Version is capture group 1, or a group named `version`:** checkver takes group `1` first and only falls back to a `version`-named group when group 1 is empty. `(?<build>\\d+)/UU-([\\d.]+)\\.exe` works because the version is the only unnamed group. If another token is unnamed while the version is named, that token becomes the version. Keep the version as the only unnamed group, or name it `version` and leave no unnamed groups.
 
