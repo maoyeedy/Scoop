@@ -338,7 +338,7 @@ Commit message format for new manifests: `Add <appname>` (matches repo history: 
 | `$version` in static `url` | 404 on `scoop install` | Use literal version in `url`; `$version` only in `autoupdate` |
 | Placeholder hashes with `checkhashes.ps1` | `-Update` on `""` errors on a null method call and changes nothing; unequal url/hash arrays print `URLS and hashes count mismatch` | Compute hashes manually with `Get-FileHash`; skip `checkhashes.ps1` for new manifests |
 | `autoupdate.hash` with `mode: "download"` but no `autoupdate.url` | `checkver -u -f` exits 0 and writes `"hash": ""` | Add a version-less `autoupdate.url`; it may repeat the static `url` |
-| `"hash": ""` left in a committed manifest | Excavator never fills it; install fails hash check forever | Seed a real hash; Scoop only updates a non-empty top-level hash |
+| `"hash": ""` in a committed manifest | Install only warns `No hash in manifest` and proceeds unverified (`download.ps1:730`); Excavator never fills it | Seed a real hash; Scoop only updates a non-empty top-level hash |
 | `checkver -f` "passes" but hash was never computed | Same manifest hash rewritten, no download log | Zero the hash and use a cold `SCOOP_CACHE`, then look for `Computed hash:` |
 | URL fragment in `Invoke-WebRequest` | File downloads as empty or errors | Strip `#/...` fragment before constructing the download URL |
 | `'$env:TEMP'` inside single quotes | Download lands in `<cwd>\$env:TEMP\...` and fails | Use `Join-Path $env:TEMP "file"` (the outer `-Command` string is the single-quoted one) |
