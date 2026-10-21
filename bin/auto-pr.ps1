@@ -1,5 +1,6 @@
 param(
-    [String]$upstream = "Maoyeedy/Scoop-Yeedy:main"
+    # overwrite upstream param
+    [String]$upstream = "Maoyeedy/Scoop:master"
 )
 
 if (!$env:SCOOP_HOME) { $env:SCOOP_HOME = Convert-Path (scoop prefix scoop) }
