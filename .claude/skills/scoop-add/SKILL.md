@@ -201,7 +201,7 @@ For a single `.exe` (no architecture split):
 
 ### Pattern B Template (CDN with named captures)
 
-The key insight: named capture groups in `checkver.regex` become `$matchGroupName` variables in `autoupdate`. Only the first letter is uppercased: `(?<build>...)` → `$matchBuild`, `(?<key1>...)` → `$matchKey1`.
+The key insight: named capture groups in `checkver.regex` become `$matchGroupName` variables in `autoupdate`, via `'$match' + (Get-Culture).TextInfo.ToTitleCase(name)` (`lib/autoupdate.ps1:467`) — title case, not "capitalize the first letter", so the rest of each word is lowercased too: `(?<build>...)` → `$matchBuild`, but `(?<buildId>...)` → `$matchBuildid` and `(?<build_id>...)` → `$matchBuild_Id`. Use single-word lowercase group names.
 
 ```json
 {
@@ -232,18 +232,25 @@ See `bucket/feishu.json` (jp + regex + CDN hash) and `bucket/uu.json` (regex + r
 
 ## Step 5 — Compute Hashes
 
-Do **not** use `checkhashes.ps1` for new manifests. It is fragile when hash fields are missing or contain placeholders — it throws 404 errors or "count mismatch" failures.
+Do **not** use `checkhashes.ps1` to fill a hash you do not have. It cannot write one: with
+a top-level `"hash": ""` (or the key missing) `-Update` falls into the `architecture`
+branch and dies on a null method call (Scoop core `checkhashes.ps1:178`), leaving `hash` as
+it was. `URLS and hashes count mismatch` (`checkhashes.ps1:91`) is a different failure — the
+`url` and `hash` arrays differ in length. A wrong non-empty hash is rewritten correctly,
+but for a new manifest you have no hash to start from.
 
-Instead, download each file manually and hash it:
+Instead, download each file manually and hash it. Note the single-quoted outer `-Command`
+string: it keeps bash from eating `$env:TEMP`, and the inner double quotes let PowerShell
+expand it.
 
-```powershell
-pwsh -NoProfile -Command "
-    \$url = 'https://example.com/release/v1.2.3/app-x64.exe'  # strip any #/... fragment
-    \$tmp = '\$env:TEMP\app-x64.exe'
-    Invoke-WebRequest -Uri \$url -OutFile \$tmp
-    (Get-FileHash \$tmp -Algorithm SHA256).Hash.ToLower()
-    Remove-Item \$tmp
-"
+```bash
+pwsh -NoProfile -Command '
+    $url = "https://example.com/release/v1.2.3/app-x64.exe"   # strip any #/... fragment
+    $tmp = Join-Path $env:TEMP "app-x64.exe"
+    Invoke-WebRequest -Uri $url -OutFile $tmp
+    (Get-FileHash $tmp -Algorithm SHA256).Hash.ToLower()
+    Remove-Item $tmp
+'
 ```
 
 Key rules:
@@ -329,12 +336,13 @@ Commit message format for new manifests: `Add <appname>` (matches repo history: 
 | Pitfall | Symptom | Fix |
 |---|---|---|
 | `$version` in static `url` | 404 on `scoop install` | Use literal version in `url`; `$version` only in `autoupdate` |
-| Placeholder hashes with `checkhashes.ps1` | `OperationStopped: (404)` or "count mismatch" | Compute hashes manually with `Get-FileHash`; skip `checkhashes.ps1` for new manifests |
+| Placeholder hashes with `checkhashes.ps1` | `-Update` on `""` errors on a null method call and changes nothing; unequal url/hash arrays print `URLS and hashes count mismatch` | Compute hashes manually with `Get-FileHash`; skip `checkhashes.ps1` for new manifests |
 | `autoupdate.hash` with `mode: "download"` but no `autoupdate.url` | `checkver -u -f` exits 0 and writes `"hash": ""` | Add a version-less `autoupdate.url`; it may repeat the static `url` |
 | `"hash": ""` left in a committed manifest | Excavator never fills it; install fails hash check forever | Seed a real hash; Scoop only updates a non-empty top-level hash |
 | `checkver -f` "passes" but hash was never computed | Same manifest hash rewritten, no download log | Zero the hash and use a cold `SCOOP_CACHE`, then look for `Computed hash:` |
 | URL fragment in `Invoke-WebRequest` | File downloads as empty or errors | Strip `#/...` fragment before constructing the download URL |
-| Wrong named capture casing | `$match` variable resolves empty | First letter uppercased only: `(?<build>...)` → `$matchBuild`, `(?<key1>...)` → `$matchKey1` |
+| `'$env:TEMP'` inside single quotes | Download lands in `<cwd>\$env:TEMP\...` and fails | Use `Join-Path $env:TEMP "file"` (the outer `-Command` string is the single-quoted one) |
+| Wrong named capture casing | `$match` variable resolves empty | Title case via .NET, so `(?<buildId>...)` → `$matchBuildid`, not `$matchBuildId`. Keep group names one lowercase word |
 | Unnamed group before a named `version` | checkver reports that token (e.g. the build id) as the version | Group 1 wins; a `version`-named group is only a fallback when group 1 is empty. Keep the version as the only unnamed group, or name it `version` with no unnamed groups |
 | `7z l` reports `Type = PE` on an SFX | You assume it is not extractable and drop the archive | The same listing includes the embedded 7z stream; `7z x` extracts it, so `#/dl.7z` works |
 | Hashing a signed/rotating landing page | Hash changes on every request, installs fail | Hash the artifact, not the page: point `url` at the public CDN object (Pattern D) |

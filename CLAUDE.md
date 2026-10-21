@@ -11,16 +11,17 @@ A [Scoop](https://scoop.sh/) bucket — JSON app manifests for the Windows packa
 ```
 bucket/          # Active manifests (one JSON per app)
 deprecated/      # Removed manifests — historical reference only, do not install
-bin/             # PowerShell wrappers delegating to $SCOOP_HOME/bin/
+bin/             # Thin wrappers around $SCOOP_HOME/bin/ (auto-pr.ps1, test.ps1 differ)
 docs/            # Reference documentation
   scoop-manifest-reference.md   # Full schema, all checkver/autoupdate strategies, all variables
 .github/
   workflows/
-    excavator.yml  # Runs checkver * -u every 4 hours; opens PRs for updates
+    excavator.yml  # Every 4 hours: scheduled auto-pr (checkver, skip-current) pushes to master
 .claude/
   skills/
-    scoop-audit/   # /scoop-audit — health audit: outdated + hash mismatches
-    scoop-add/     # /scoop-add   — create new manifests safely
+    scoop-audit/       # /scoop-audit — health audit: outdated + hash mismatches
+    scoop-add/         # /scoop-add   — create new manifests safely
+    scoop-bucket-sync/ # workflows/bin vs ScoopInstaller/BucketTemplate (has scripts/)
 ```
 
 ---
@@ -33,6 +34,7 @@ Use these instead of manual steps:
 |---|---|
 | `/scoop-audit` | Audit bucket health — outdated manifests, hash mismatches |
 | `/scoop-add` | Add a new manifest to `bucket/` |
+| `/scoop-bucket-sync` | Check/sync workflows and `bin/` against ScoopInstaller/BucketTemplate |
 
 ---
 
@@ -42,7 +44,7 @@ Use these instead of manual steps:
 
 **Line endings:** CRLF everywhere (`.gitattributes` sets `eol=crlf`). Overrides the global LF rule.
 
-**Hashes for new manifests:** Do NOT use `checkhashes.ps1` — it breaks with missing hashes. Download files manually and use `Get-FileHash`.
+**Hashes for new manifests:** Do NOT use `checkhashes.ps1` to fill a hash you do not have. It cannot write one: with a top-level `"hash": ""` (or the key missing) `-Update` falls through to the `architecture` branch and dies on a null method call (Scoop core `checkhashes.ps1:178`) and leaves `hash` as it was, so nothing is fixed. `URLS and hashes count mismatch` (`:91`) is a different case — `url` and `hash` arrays of unequal length. A wrong non-empty hash is rewritten correctly. Download files manually and use `Get-FileHash`.
 
 **`$version` substitution:** Only works in `autoupdate` URLs. Static `url` fields require literal version strings.
 
@@ -84,9 +86,10 @@ All scripts run from repo root via `pwsh -NoProfile -Command "..."`.
 | `.\bin\checkver.ps1 <app> -u` | Detect + write new version/url/hash |
 | `.\bin\checkver.ps1 <app> -f` | Force autoupdate re-apply (testing) |
 | `.\bin\checkver.ps1 * -s` | List outdated apps only |
-| `.\bin\checkhashes.ps1 <app>` | Verify hashes (existing manifests only) |
-| `.\bin\formatjson.ps1 <app>` | Normalize JSON formatting |
-| `.\Scoop-Bucket.Tests.ps1` | Run Pester tests |
+| `.\bin\checkhashes.ps1 <app>` | Verify hashes (downloads every URL) |
+| `.\bin\checkhashes.ps1 <app> -Update` | Rewrite mismatched hashes in place |
+| `.\bin\formatjson.ps1 <app>` | Normalize JSON formatting (4-space indent, CRLF) |
+| `.\Scoop-Bucket.Tests.ps1` | Run Pester tests (needs Pester 5.2+ and BuildHelpers) |
 
 Debug: `scoop config debug $true` before running checkver to see verbose fetch/regex output.
 
@@ -97,9 +100,9 @@ Excavator runs `checkver * -u` with `SKIP_UPDATED=1`, so a current manifest's au
 | Command | Purpose |
 |---|---|
 | `.\bin\checkurls.ps1 <app>` | Verify manifest URLs |
-| `.\bin\missing-checkver.ps1` | List manifests missing `checkver` |
-| `.\bin\auto-pr.ps1` | Create or update PRs from bucket changes |
-| `.\bin\test.ps1` | Run the bucket test suite in both Windows PowerShell and PowerShell 7 |
+| `.\bin\missing-checkver.ps1` | List manifests missing `checkver` or `autoupdate` |
+| `.\bin\auto-pr.ps1` | Commit/push bucket changes via `-Push` (or open a PR with `-Request`) |
+| `.\bin\test.ps1` | Run the Pester suite in the invoking shell; `ci.yml` runs the powershell/pwsh matrix |
 
 ---
 
@@ -109,6 +112,6 @@ For the full schema and all options, see [`docs/scoop-manifest-reference.md`](do
 
 | Pattern | Examples | Notes |
 |---|---|---|
-| GitHub release | `fetch.json`, `toasty.json`, `spicetify.json` | `"checkver": "github"` |
+| GitHub release | `fetch.json`, `toasty.json`, `spicetify.json` | `fetch.json` is plain `"checkver": "github"`; `spicetify.json` needs the `{"github": "<url>"}` form (homepage is not the repo); `toasty.json` uses `checkver.script` |
 | CDN + named captures | `feishu.json`, `uu.json`, `leigod.json` | `$matchXxx` in autoupdate for non-version tokens |
 | Mirror/derived URL | `blender-aliyun.json` | Version from official source, download from mirror |
