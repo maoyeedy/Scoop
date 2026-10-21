@@ -11,7 +11,9 @@ A [Scoop](https://scoop.sh/) bucket — JSON app manifests for the Windows packa
 ```
 bucket/          # Active manifests (one JSON per app)
 deprecated/      # Removed manifests — historical reference only, do not install
-bin/             # Thin wrappers around $SCOOP_HOME/bin/ (auto-pr.ps1, test.ps1 differ)
+  scripts/       # checkver helpers of the deprecated Unity manifests
+bin/             # BucketTemplate copies: wrappers around $SCOOP_HOME/bin/. Never add files here
+tools/           # This bucket's own maintenance scripts (see "tools/ Scripts")
 docs/            # Reference documentation
   scoop-manifest-reference.md   # Full schema, all checkver/autoupdate strategies, all variables
 .github/
@@ -32,7 +34,7 @@ Use these instead of manual steps:
 
 | Skill | When to use |
 |---|---|
-| `/scoop-audit` | Audit bucket health — outdated manifests, hash mismatches |
+| `/scoop-audit` | Audit bucket health — wraps `tools/audit.ps1` |
 | `/scoop-add` | Add a new manifest to `bucket/` |
 | `/scoop-bucket-sync` | Check/sync workflows and `bin/` against ScoopInstaller/BucketTemplate |
 
@@ -40,11 +42,15 @@ Use these instead of manual steps:
 
 ## Key Rules
 
-**Shell:** Use `pwsh -NoProfile` for Scoop scripts, never `powershell`. Use `git -C <repo-root>` instead of `cd` for git commands.
+**Shell:** Use `pwsh -NoProfile` for Scoop scripts, never `powershell`: a `powershell` started from this session inherits pwsh's `PSModulePath`, PS7's `Microsoft.PowerShell.Utility` shadows the 5.1 one, and `Get-FileHash` disappears. 5.1 itself is fine (CI's 5.1 leg is unaffected). Use `git -C <repo-root>` instead of `cd` for git commands.
+
+**Manifest scripts must run on 5.1:** tooling runs in pwsh (Excavator does too), but `pre_install`/`installer`/`post_install`/`uninstaller` run in the user's shell, which is 5.1 when pwsh is absent. No PS7-only syntax (`??`, `?:`, `&&`, `||`, `-Parallel`). To test under 5.1 from here: `env -u PSModulePath powershell -NoProfile`.
+
+**`file:line` refs** below and in `.claude/skills/` point at Scoop core master `e6aa3b36` (2026-09-30). Re-check them before relying on them after a Scoop update.
 
 **Line endings:** CRLF everywhere (`.gitattributes` sets `eol=crlf`). Overrides the global LF rule.
 
-**Hashes for new manifests:** Do NOT use `checkhashes.ps1` to fill a hash you do not have. It cannot write one: with a top-level `"hash": ""` (or the key missing) `-Update` falls through to the `architecture` branch and dies on a null method call (Scoop core `checkhashes.ps1:178`) and leaves `hash` as it was, so nothing is fixed. `URLS and hashes count mismatch` (`:91`) is a different case — `url` and `hash` arrays of unequal length. A wrong non-empty hash is rewritten correctly. Download files manually and use `Get-FileHash`.
+**Hashes for new manifests:** Do NOT use `checkhashes.ps1` to fill a hash you do not have. It cannot write one: with a top-level `"hash": ""` (or the key missing) `-Update` falls through to the `architecture` branch, errors on `Get-Member` (Scoop core `checkhashes.ps1:163`) and then on null method calls (`:170-178`), and leaves `hash` as it was, so nothing is fixed. `URLS and hashes count mismatch` (`:91`) is a different case — `url` and `hash` arrays of unequal length. A wrong non-empty hash is rewritten correctly. Seed new hashes with `tools/hashurl.ps1 <url>`.
 
 **`$version` substitution:** Only works in `autoupdate` URLs. Static `url` fields require literal version strings.
 
@@ -60,11 +66,11 @@ Use these instead of manual steps:
 
 **`autoupdate.hash` needs a URL to hash:** `mode: "download"` hashes whatever `autoupdate.url` resolves to. With no `autoupdate.url`, Scoop substitutes `$null`, downloads nothing, writes `"hash": ""`, and still exits 0. When hashing by download, always set a version-less `autoupdate.url` (it may be identical to the static `url`).
 
-**Never commit `"hash": ""`:** Scoop's `Update-ManifestProperty` only refreshes a top-level hash when it is already non-empty; an empty one is never auto-filled by Excavator. Seed a real hash when creating the manifest.
+**Never commit `"hash": ""`:** Scoop's `Update-ManifestProperty` only refreshes a top-level hash when it is already non-empty; an empty one is never auto-filled by Excavator, and install only warns and proceeds unverified (`lib/download.ps1:730`). Seed a real hash when creating the manifest. `tools/lint.ps1` (and the schema test in `bin/test.ps1`) fails on it. CI only validates manifests changed in the pushed commit, and Excavator's `GITHUB_TOKEN` pushes do not trigger CI, so lint locally.
 
 **`hash` only covers `url`:** files fetched inside `pre_install` are never verified, and a vendor API/landing page that rotates tokens cannot be hashed. If the real artifact has a stable public URL, point `url` at it and let Scoop hash that (see `uu.json`).
 
-**`checkver <app> -u -f` can pass without computing anything:** if the hash is already correct, it rewrites the same value. To prove the hash path works, replace the hash with a wrong **non-empty** value (64 zeros), point `SCOOP_CACHE` at an empty temp dir, run `-u -f`, and expect a `Downloading ...` + `Computed hash:` line. Do not empty the hash: autoupdate only takes the global-hash branch when `$Manifest.hash` is truthy; otherwise it walks `architecture`, and on a manifest without one `Get-Member` on `$null` errors while the manifest is still written with the empty hash (`lib/autoupdate.ps1:383-399`).
+**`checkver <app> -u -f` can pass without computing anything:** if the hash is already correct, it rewrites the same value. `tools/provehash.ps1 <app>` does the real proof on a temp copy: hash set to 64 zeros, empty `SCOOP_CACHE`, `-u -f`, result compared to the committed hash. Zeros, not `""`: autoupdate only takes the global-hash branch when `$Manifest.hash` is truthy; otherwise it walks `architecture`, and on a manifest without one `Get-Member` on `$null` errors while the manifest is still written with the empty hash (`lib/autoupdate.ps1:383-399`).
 
 **Version is capture group 1, or a group named `version`:** checkver takes group `1` first and only falls back to a `version`-named group when group 1 is empty. `(?<build>\\d+)/UU-([\\d.]+)\\.exe` works because the version is the only unnamed group. If another token is unnamed while the version is named, that token becomes the version. Keep the version as the only unnamed group, or name it `version` and leave no unnamed groups.
 
@@ -89,18 +95,31 @@ All scripts run from repo root via `pwsh -NoProfile -Command "..."`.
 | `.\bin\checkhashes.ps1 <app>` | Verify hashes (downloads every URL) |
 | `.\bin\checkhashes.ps1 <app> -Update` | Rewrite mismatched hashes in place |
 | `.\bin\formatjson.ps1 <app>` | Normalize JSON formatting (4-space indent, CRLF) |
-| `.\Scoop-Bucket.Tests.ps1` | Run Pester tests (needs Pester 5.2+ and BuildHelpers) |
+| `.\Scoop-Bucket.Tests.ps1` | Run Pester tests (needs Pester 5.2+ and BuildHelpers); for one manifest's schema, `tools/lint.ps1 <app>` is faster |
 
 Debug: `scoop config debug $true` before running checkver to see verbose fetch/regex output.
 
-Excavator runs `checkver * -u` with `SKIP_UPDATED=1`, so a current manifest's autoupdate/hash path is never exercised until upstream bumps. `-f` locally is the only pre-release proof; a CI probe needs a `workflow_dispatch` workflow that exists on the default branch, dispatched with `--ref`.
+Excavator runs `checkver * -u` with `SKIP_UPDATED=1`, so a current manifest's autoupdate/hash path is never exercised until upstream bumps. `tools/provehash.ps1` is the pre-release proof; a CI probe needs a `workflow_dispatch` workflow that exists on the default branch, dispatched with `--ref`.
+
+## Quick Reference: `tools/` Scripts
+
+This bucket's own scripts, not from the template. All take `[<app>] [-Dir <bucket>]`, default `*` and `bucket/`, emit objects, and exit 1 on an error. pwsh only.
+
+| Command | Purpose | Cost |
+|---|---|---|
+| `.\tools\audit.ps1 [-Offline]` | Every check below plus `checkver -s` and `checkhashes`, one table with the fix per row | minutes; `-Offline` seconds |
+| `.\tools\lint.ps1` | Schema + the Key Rules: empty/missing hash, `$version` in static url, missing `autoupdate.url`, github homepage, regex groups, undefined `$matchXxx`, no checkver without `##`, PS7-only syntax and downloads in install scripts | <1 s, offline |
+| `.\tools\checkautoupdate.ps1` | `autoupdate.url` filled with the committed version must equal the static `url` (catches asset renames before the next release) | <1 s, offline |
+| `.\tools\checksources.ps1` | Every `checkver.url` (or homepage) and `autoupdate.hash.url` answers 2xx; `bin/checkurls.ps1` covers download urls | ~10 s |
+| `.\tools\provehash.ps1` | Autoupdate recomputes each hash from zeros on a temp copy; `moved` means upstream released, run `checkver -u` first | downloads artifacts |
+| `.\tools\hashurl.ps1 <url>` | SHA256 of a url (fragment stripped), for seeding a new manifest | one download |
 
 ## Maintenance Commands
 
 | Command | Purpose |
 |---|---|
 | `.\bin\checkurls.ps1 <app>` | Verify manifest URLs |
-| `.\bin\missing-checkver.ps1` | List manifests missing `checkver` or `autoupdate` |
+| `.\bin\missing-checkver.ps1` | List manifests missing `checkver` or `autoupdate`. Expected: `otf-SF-Mono`, `window-centering-helper` (reason in each manifest's `##`) |
 | `.\bin\auto-pr.ps1` | Commit/push bucket changes via `-Push` (or open a PR with `-Request`) |
 | `.\bin\test.ps1` | Run the Pester suite in the invoking shell; `ci.yml` runs the powershell/pwsh matrix |
 

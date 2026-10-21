@@ -11,132 +11,98 @@ description: >
 
 # Scoop Bucket Health Check
 
-## Overview
-
-This skill audits a Scoop bucket by running the official maintenance scripts and
-presenting findings as structured tables. Nothing is modified until the user explicitly
-approves.
-
-The two categories have different fixes, and using the wrong one silently does nothing:
-
-- **Outdated** -> `checkver.ps1 <app> -u` re-fetches upstream and rewrites version/url/hash.
-- **Hash mismatch** -> `checkhashes.ps1 <app> -Update`, or `checkver.ps1 <app> -u -f`.
-  Plain `checkver -u` will NOT fix a hash: when the detected version equals the manifest
-  version it prints the version and `continue`s before autoupdate (`checkver.ps1:425` in
-  `$SCOOP_HOME`), so a mismatch at the current version is left untouched.
+Run one script, report what it flagged, fix only after approval. Nothing is modified
+until the user explicitly approves.
 
 ---
 
-## Step 1 — Run the checks
+## Step 1 — Run the audit
 
-Run both checks. Capture their full output.
-
-**Check for outdated manifests** (show-only mode, no updates written):
 ```bash
-pwsh -NoProfile -Command "cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'; .\bin\checkver.ps1 * -s"
-```
-`-s` is `-SkipUpdated`: a current manifest hits an early `continue` (`checkver.ps1:420`) and
-prints nothing at all, so an empty run is a pass, not a failure.
-
-**Check for hash mismatches:**
-```bash
-pwsh -NoProfile -Command "cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'; .\bin\checkhashes.ps1"
+pwsh -NoProfile -File C:/Users/jerkl/scoop/buckets/maoyeedy_scoop/tools/audit.ps1
 ```
 
-Always use `pwsh -NoProfile`, never `powershell`. Scoop's `checkhashes.ps1` calls
-`Get-FileHash`, and this machine's Windows PowerShell 5.1 has no
-`Microsoft.PowerShell.Utility` module, so the cmdlet is missing there entirely.
+It runs `checkver * -s` (outdated), `checkhashes` (mismatches; downloads every `url`, so it
+takes minutes), `tools/lint.ps1` (schema + Key Rules), `tools/checkautoupdate.ps1` and
+`tools/checksources.ps1`, and prints one table of problems: `App`, `Check`, `Level`,
+`Detail`, `Fix`. Apps that pass print nothing; a clean run prints `audit: no problems found`.
+For a quick pass without network, add `-Offline` (lint + checkautoupdate only).
+
+Do not run the underlying scripts one by one or add your own analysis: report what the
+table says. `otf-SF-Mono` and `window-centering-helper` have no checkver by design (reason
+in their `##`); a hash mismatch is their only update signal.
+
+Use `pwsh`, never `powershell`: a `powershell` launched from this session inherits pwsh's
+`PSModulePath`, PS7's `Microsoft.PowerShell.Utility` shadows the 5.1 module, and
+`Get-FileHash` is missing.
 
 ---
 
-## Step 2 — Parse and classify results
+## Step 2 — Present the report
 
-Only report what the scripts actually flagged. Do not invent issues or perform
-additional static analysis.
-
-Classify each flagged app into one or both categories:
-
-| Category | Source | What it means |
-|---|---|---|
-| **Outdated** | `checkver -s` output | Upstream version differs from manifest `version` |
-| **Hash mismatch** | `checkhashes.ps1` output | Downloaded file hash doesn't match manifest `hash` |
-
-An app can appear in both tables if both issues apply.
-
----
-
-## Step 3 — Present the report
-
-Use this exact structure:
+Group the rows by `Check` and keep the script's wording:
 
 ```
 ## Bucket Health Report
 
-### Outdated Manifests
-| App | Current Version | Latest Version |
-|-----|----------------|----------------|
-| feishu | 7.20.0 | 7.21.5 |
-| ...   | ...    | ...    |
+### Outdated
+| App | Change |
+|-----|--------|
+| feishu | 7.20.0 -> 7.21.5 |
 
-### Hash Mismatches
-| App | Expected Hash (manifest) | Status |
-|-----|--------------------------|--------|
-| uu  | abc123...                | MISMATCH |
-| ... | ...                      | ...   |
+### Hash mismatches
+| App | Detail |
+|-----|--------|
+| uu | Mismatch found |
+
+### Lint / autoupdate / sources
+| App | Check | Level | Detail |
+|-----|-------|-------|--------|
+| adobe-creative-cloud-cleaner-tool | lint:hash-missing | error | top level: a url has no hash ... |
 ```
 
-If a category has no issues, write `✓ All good` under that heading instead of a table.
-
-If both checks pass cleanly, write:
-
-```
-## Bucket Health Report
-✓ All manifests are up to date.
-✓ All hashes verified.
-
-No action needed.
-```
+Omit empty sections. Warnings (`warn`, `autoupdate:skip`) are informational: list them
+after the errors. If the script printed `audit: no problems found`, say so and stop.
 
 ---
 
-## Step 4 — Ask before fixing
+## Step 3 — Ask before fixing
 
-After the report, if any issues were found, list the affected apps and ask:
+List the affected apps with the `Fix` column and ask:
 
-> Want me to fix **[app-a]**, **[app-b]**, **[app-c]**?
-> (Outdated -> `checkver <app> -u`; hash mismatch -> `checkhashes <app> -Update`.)
+> Want me to fix **[app-a]**, **[app-b]**?
 
 Wait for the user's response. Do not run any fix commands until they confirm.
-
 The user may say "yes fix all", name specific apps, or say "no" — respect all responses.
 
 ---
 
-## Step 5 — Apply fixes (only after approval)
+## Step 4 — Apply fixes (only after approval)
 
-Pick the command per category — they are not interchangeable:
+The fixes are not interchangeable:
 
-**Outdated manifests:**
+| Check | Fix |
+|---|---|
+| `outdated` | `bin/checkver.ps1 <app> -u` (rewrites version, url, hash) |
+| `hash` | `bin/checkhashes.ps1 <app> -Update`, or `bin/checkver.ps1 <app> -u -f` |
+| `lint:hash-missing` / empty hash | `tools/hashurl.ps1 <url>`, then write the hash by hand |
+| other `lint:*`, `autoupdate:mismatch` | edit the manifest per CLAUDE.md Key Rules |
+| `source:*`, `checkver` | the upstream source moved: report it, needs manual investigation |
+
+Plain `checkver -u` will NOT fix a hash at the current version: it prints the version and
+`continue`s before autoupdate (`checkver.ps1:425` in `$SCOOP_HOME`). `checkhashes -Update`
+cannot fill an empty hash: it errors on `Get-Member` and null method calls
+(`checkhashes.ps1:163-178`) and leaves it untouched. An app that is both outdated and
+mismatched: `checkver -u` first, then `checkhashes -Update` for what is still wrong.
+
+Run fixes one at a time, show the output for each. After a fix, re-run the app's checks:
+
 ```bash
-pwsh -NoProfile -Command "cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'; .\bin\checkver.ps1 <app> -u"
+pwsh -NoProfile -File C:/Users/jerkl/scoop/buckets/maoyeedy_scoop/tools/audit.ps1 <app>
 ```
 
-**Hash mismatches:**
-```bash
-pwsh -NoProfile -Command "cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'; .\bin\checkhashes.ps1 <app> -Update"
-```
+If `checkver -u` fails for an app (e.g., the regex no longer matches), report that it needs
+manual investigation — do not attempt further workarounds.
 
-An app can be in both tables; run `checkver -u` first (it moves version and url), then
-`checkhashes -Update` for whatever hash is still wrong. `checkhashes -Update` only rewrites
-a hash that already exists: with a top-level `"hash": ""` it errors on a null method call
-(`checkhashes.ps1:178`) and leaves the hash untouched, so those have to be computed by hand.
-A wrong non-empty hash is fixed normally (verified end-to-end).
-
-Run them one at a time, show the output for each, and confirm success before moving on.
-
-If `checkver -u` fails for an app (e.g., the upstream URL structure changed and the
-regex no longer matches), report that it needs manual investigation — do not attempt
-further workarounds.
-
-After all fixes are applied, offer to run `.\bin\formatjson.ps1` to normalize
-JSON formatting, and offer to stage + commit the changed files.
+After all fixes, offer to run `.\bin\formatjson.ps1` to normalize JSON formatting, and offer
+to stage + commit the changed files.

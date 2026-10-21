@@ -26,9 +26,11 @@ These leftovers are expected and must not be "fixed":
 | `.gitignore`, `README.md` | Bucket-specific content. |
 | no `bucket/app-name.json.template` | `scoop-add` covers manifest creation. |
 | no `deprecated/.gitkeep` | The directory has real manifests. |
-| extra `docs/`, `CLAUDE.md`, `.claude/`, `scripts/unitylts-checkver*.ps1`, `repomix-output.xml` | Repo-local. `repomix-output.xml` is gitignored; "Only in" is not drift. |
+| extra `docs/`, `CLAUDE.md`, `.claude/`, `tools/`, `repomix-output.xml` | Repo-local. `tools/` holds this bucket's own maintenance scripts, kept out of `bin/` so `bin/` stays a pure template copy. `repomix-output.xml` is gitignored; "Only in" is not drift. `deprecated/scripts/` is excluded with `deprecated/`. |
 
-Everything else that differs is drift. `bin/checkver.ps1`, `checkhashes.ps1`, `checkurls.ps1`, `formatjson.ps1` and `missing-checkver.ps1` are 4-line wrappers around `$SCOOP_HOME/bin/`; `auto-pr.ps1` and `test.ps1` (a Pester runner) are longer. When a wrapper differs, copy the template file rather than editing it.
+A difference earns a row here only if it carries a repo-specific value or guards a failure the template cannot catch for this bucket; otherwise take the template. An Excavator guard against `"hash": ""` was considered and rejected: the schema test in `bin/test.ps1` already fails on it, so the drift would buy nothing.
+
+Everything else that differs is drift. Never add a file to `bin/`; a new helper goes in `tools/`. `bin/checkver.ps1`, `checkhashes.ps1`, `checkurls.ps1`, `formatjson.ps1` and `missing-checkver.ps1` are 4-line wrappers around `$SCOOP_HOME/bin/`; `auto-pr.ps1` and `test.ps1` (a Pester runner) are longer. When a wrapper differs, copy the template file rather than editing it.
 
 ## 2. Classify
 

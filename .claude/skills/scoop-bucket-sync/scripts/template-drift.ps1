@@ -5,7 +5,8 @@
     Read-only. Refreshes a shallow clone of the template in a temp directory, then reports
     the template files that are missing or differ here, plus the repo files the template
     does not have. bucket/ and deprecated/ are ignored: they are this bucket's manifests by
-    design. Run with pwsh (Get-FileHash is absent from this machine's Windows PowerShell 5.1).
+    design. Run with pwsh: a powershell started from a pwsh session inherits PS7's
+    PSModulePath, which hides the 5.1 Get-FileHash.
 .NOTES
     A differing file is reported before its diff, so the diff run is easy to skim.
 #>

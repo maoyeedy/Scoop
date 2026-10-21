@@ -234,31 +234,21 @@ See `bucket/feishu.json` (jp + regex + CDN hash) and `bucket/uu.json` (regex + r
 
 Do **not** use `checkhashes.ps1` to fill a hash you do not have. It cannot write one: with
 a top-level `"hash": ""` (or the key missing) `-Update` falls into the `architecture`
-branch and dies on a null method call (Scoop core `checkhashes.ps1:178`), leaving `hash` as
-it was. `URLS and hashes count mismatch` (`checkhashes.ps1:91`) is a different failure — the
+branch and errors on `Get-Member` and null method calls (Scoop core `checkhashes.ps1:163-178`),
+leaving `hash` as it was. `URLS and hashes count mismatch` (`checkhashes.ps1:91`) is a different failure — the
 `url` and `hash` arrays differ in length. A wrong non-empty hash is rewritten correctly,
 but for a new manifest you have no hash to start from.
 
-Instead, download each file manually and hash it. Note the single-quoted outer `-Command`
-string: it keeps bash from eating `$env:TEMP`, and the inner double quotes let PowerShell
-expand it.
+Instead, hash each url with `tools/hashurl.ps1`. It strips the `#/...` fragment (a Scoop
+directive, not part of the HTTP URL), uses Scoop's user agent, and prints lowercase SHA256
+(Scoop's default; no prefix needed in `hash`). Pass every arch url for multi-arch manifests:
 
 ```bash
-pwsh -NoProfile -Command '
-    $url = "https://example.com/release/v1.2.3/app-x64.exe"   # strip any #/... fragment
-    $tmp = Join-Path $env:TEMP "app-x64.exe"
-    Invoke-WebRequest -Uri $url -OutFile $tmp
-    (Get-FileHash $tmp -Algorithm SHA256).Hash.ToLower()
-    Remove-Item $tmp
-'
+pwsh -NoProfile -File C:/Users/jerkl/scoop/buckets/maoyeedy_scoop/tools/hashurl.ps1 'https://example.com/v1.2.3/app-x64.exe#/app.exe' 'https://example.com/v1.2.3/app-arm64.exe#/app.exe'
 ```
 
 Key rules:
-- **Strip the URL fragment** (`#/app.exe`, `#/dl.7z`) before downloading — it's a Scoop directive, not part of the HTTP URL
-- Use `-Algorithm SHA256` (Scoop default; no prefix needed in the `hash` field)
-- Output must be lowercase hex
-- For multi-arch manifests, download and hash each binary separately
-- If the source provides a checksum file (e.g., `SHA256SUMS`), verify against it as a sanity check
+- If the source provides a checksum file (e.g., `SHA256SUMS`), verify against it as a sanity check, and point `autoupdate.hash` at it (`url` + `regex`/`jp`) instead of `mode: download`: a vendor checksum proves what the vendor published, a computed one only what the CDN served
 - **Seed a real hash, never `""`:** Scoop only autoupdates a top-level hash that is already non-empty (`Update-ManifestProperty`), so an empty hash is permanent. If you must hash by download, give `autoupdate` its own version-less `url` — without it Scoop has nothing to download and writes `""` while exiting 0.
 
 ---
@@ -273,11 +263,19 @@ pwsh -NoProfile -Command "cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'; .\bi
 
 `formatjson.ps1` normalizes key ordering and indentation to match the bucket style. It also handles CRLF line endings (required by the repo's `.gitattributes`).
 
+If upstream has no trackable version, omit `checkver`/`autoupdate` and say why in a `"##"` comment (see `otf-SF-Mono.json`), so `missing-checkver.ps1` output stays explainable.
+
 ---
 
 ## Step 7 — Verify
 
 Run these in order. Each should succeed before moving to the next.
+
+**0. Offline checks** (schema + Key Rules + autoupdate.url reproduces the static url; <1 s):
+```bash
+pwsh -NoProfile -File C:/Users/jerkl/scoop/buckets/maoyeedy_scoop/tools/audit.ps1 <appname> -Offline
+```
+Fix every `error` row before going on.
 
 **1. Version detection:**
 ```powershell
@@ -291,23 +289,11 @@ pwsh -NoProfile -Command "scoop config debug `$true; cd 'C:/Users/jerkl/scoop/bu
 ```
 Then re-probe the source to see what changed, and fix the `checkver` block.
 
-**2. Autoupdate test (recommended for new manifests):**
-```powershell
-pwsh -NoProfile -Command "cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'; .\bin\checkver.ps1 <appname> -f"
+**2. Autoupdate hash proof:**
+```bash
+pwsh -NoProfile -File C:/Users/jerkl/scoop/buckets/maoyeedy_scoop/tools/provehash.ps1 <appname>
 ```
-The `-f` flag forces autoupdate even if already current. Verify the JSON now contains the correct `version`, `url`, and `hash`. If something breaks, check that `autoupdate` URLs use `$version` (not a literal), and that named capture variables are spelled correctly.
-
-`-f` alone does **not** prove hash extraction works: with the correct hash already in place it just rewrites the same value. For a real test, put a deliberately wrong 64-char value (e.g. all zeros) in `hash` using your normal editing path, then run with a cold cache:
-
-```powershell
-pwsh -NoProfile -Command "
-    \$env:SCOOP_CACHE = Join-Path \$env:TEMP 'scoop-cache-test'
-    cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'
-    .\bin\checkver.ps1 <appname> -u -f
-"
-```
-
-Expected: `Downloading ...` then `Computed hash: <64 hex>`, and the manifest now holds the real hash. No download line means `autoupdate.url` is missing or empty, or `hash` was emptied (`""`) instead of set to zeros -- the empty case takes the `architecture` branch, errors on `Get-Member` and changes nothing.
+On a temp copy it sets every hash to 64 zeros, empties `SCOOP_CACHE`, runs `checkver -u -f`, and compares the result with your committed hash; `bucket/` is untouched. `ok` proves the autoupdate url and hash path. `not-computed` means `autoupdate.url` is missing or the hash extraction found nothing (log path in the row); `differs` means your seeded hash is wrong or the artifact changed. Plain `checkver -f` proves nothing here: with the correct hash in place it rewrites the same value.
 
 **3. Install test:**
 ```powershell
@@ -339,14 +325,13 @@ Commit message format for new manifests: `Add <appname>` (matches repo history: 
 | Placeholder hashes with `checkhashes.ps1` | `-Update` on `""` errors on a null method call and changes nothing; unequal url/hash arrays print `URLS and hashes count mismatch` | Compute hashes manually with `Get-FileHash`; skip `checkhashes.ps1` for new manifests |
 | `autoupdate.hash` with `mode: "download"` but no `autoupdate.url` | `checkver -u -f` exits 0 and writes `"hash": ""` | Add a version-less `autoupdate.url`; it may repeat the static `url` |
 | `"hash": ""` in a committed manifest | Install only warns `No hash in manifest` and proceeds unverified (`download.ps1:730`); Excavator never fills it | Seed a real hash; Scoop only updates a non-empty top-level hash |
-| `checkver -f` "passes" but hash was never computed | Same manifest hash rewritten, no download log | Use a deliberately wrong **non-empty** hash and a cold `SCOOP_CACHE`, then look for `Computed hash:`. An empty hash takes the `architecture` branch and stays empty |
-| URL fragment in `Invoke-WebRequest` | File downloads as empty or errors | Strip `#/...` fragment before constructing the download URL |
-| `'$env:TEMP'` inside single quotes | Download lands in `<cwd>\$env:TEMP\...` and fails | Use `Join-Path $env:TEMP "file"` (the outer `-Command` string is the single-quoted one) |
+| `checkver -f` "passes" but hash was never computed | Same manifest hash rewritten, no download log | `tools/provehash.ps1 <app>` (zeros, not `""`: an empty hash takes the `architecture` branch and stays empty) |
+| URL fragment in `Invoke-WebRequest` | File downloads as empty or errors | `tools/hashurl.ps1` strips it |
 | Wrong named capture casing | `$match` variable resolves empty | Title case via .NET, so `(?<buildId>...)` → `$matchBuildid`, not `$matchBuildId`. Keep group names one lowercase word |
 | Unnamed group before a named `version` | checkver reports that token (e.g. the build id) as the version | Group 1 wins; a `version`-named group is only a fallback when group 1 is empty. Keep the version as the only unnamed group, or name it `version` with no unnamed groups |
 | `7z l` reports `Type = PE` on an SFX | You assume it is not extractable and drop the archive | The same listing includes the embedded 7z stream; `7z x` extracts it, so `#/dl.7z` works |
 | Hashing a signed/rotating landing page | Hash changes on every request, installs fail | Hash the artifact, not the page: point `url` at the public CDN object (Pattern D) |
-| `powershell` instead of `pwsh` | `Get-FileHash` or script errors | Always use `pwsh -NoProfile` |
+| `powershell` instead of `pwsh` | `Get-FileHash` not recognized (inherited `PSModulePath` puts PS7's Utility module first) | Always use `pwsh -NoProfile` |
 | No `extract_dir` for zips with a root folder | App files scattered or not found | Check zip structure with `7z l <file>.zip`; add `extract_dir` matching the folder name |
 | `cd` in bash commands | Wrong working directory | Use `git -C <path>` for git; `pwsh -NoProfile -Command "cd '...'; ..."` for pwsh scripts |
 
