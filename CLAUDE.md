@@ -56,6 +56,18 @@ Use these instead of manual steps:
 
 **Hash extraction from GitHub API:** Use `autoupdate.hash` with `mode: json` and `jp` expression to extract `.digest` field (format `sha256:hex` — prefix auto-stripped). Avoids downloading the asset just for hashing.
 
+**`autoupdate.hash` needs a URL to hash:** `mode: "download"` hashes whatever `autoupdate.url` resolves to. With no `autoupdate.url`, Scoop substitutes `$null`, downloads nothing, writes `"hash": ""`, and still exits 0. When hashing by download, always set a version-less `autoupdate.url` (it may be identical to the static `url`).
+
+**Never commit `"hash": ""`:** Scoop's `Update-ManifestProperty` only refreshes a top-level hash when it is already non-empty; an empty one is never auto-filled by Excavator. Seed a real hash when creating the manifest.
+
+**`hash` only covers `url`:** files fetched inside `pre_install` are never verified, and a vendor API/landing page that rotates tokens cannot be hashed. If the real artifact has a stable public URL, point `url` at it and let Scoop hash that (see `uu.json`).
+
+**`checkver <app> -u -f` can pass without computing anything:** if the hash is already correct, it rewrites the same value. To prove the hash path works, zero the hash, point `SCOOP_CACHE` at an empty temp dir, run `-u -f`, and expect a `Downloading ...` + `Computed hash:` line.
+
+**Version is capture group 1, or a group named `version`:** checkver takes group `1` first and only falls back to a `version`-named group when group 1 is empty. `(?<build>\\d+)/UU-([\\d.]+)\\.exe` works because the version is the only unnamed group. If another token is unnamed while the version is named, that token becomes the version. Keep the version as the only unnamed group, or name it `version` and leave no unnamed groups.
+
+**Artifact behind a signed/rotating link:** pages that hand out `?key1=...` links change per request and cannot be hashed. Check whether the tokens are cosmetic (fetch keyless, then with bogus keys, and compare `ETag`/`x-goog-generation`); if the object is public, point `url` at it and keep `checkver` on the official page (see `uu.json`).
+
 **Commit messages:**
 - New manifest: `Add <appname>`
 - Update: `<appname>: Update to version X.Y.Z`
@@ -77,6 +89,8 @@ All scripts run from repo root via `pwsh -NoProfile -Command "..."`.
 | `.\Scoop-Bucket.Tests.ps1` | Run Pester tests |
 
 Debug: `scoop config debug $true` before running checkver to see verbose fetch/regex output.
+
+Excavator runs `checkver * -u` with `SKIP_UPDATED=1`, so a current manifest's autoupdate/hash path is never exercised until upstream bumps. `-f` locally is the only pre-release proof; a CI probe needs a `workflow_dispatch` workflow that exists on the default branch, dispatched with `--ref`.
 
 ## Maintenance Commands
 

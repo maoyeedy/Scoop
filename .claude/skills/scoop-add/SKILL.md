@@ -82,6 +82,13 @@ Based on what you found, pick one:
 - URL structure often uses `$majorVersion.$minorVersion` for path construction
 - Example: `blender-aliyun.json`
 
+**Pattern D — Artifact behind a signed/rotating link**
+- A landing page or API hands out a link with per-request tokens (`?key1=...`), so neither the page nor the signed link can be a static `url`, and the page itself cannot be hashed (it changes every request)
+- Test whether the tokens are cosmetic: fetch the link with no query and with bogus keys, and compare `ETag` / `x-goog-generation` against the signed response to confirm it is the same object
+- If the object is public, use it directly (`.../UU-$version.exe#/dl.7z`) and keep `checkver` on the official page
+- Capture a changing path segment as a named group, but keep the version as the first unnamed group
+- Example: `uu.json`
+
 ---
 
 ## Step 4 — Build the Manifest
@@ -245,6 +252,7 @@ Key rules:
 - Output must be lowercase hex
 - For multi-arch manifests, download and hash each binary separately
 - If the source provides a checksum file (e.g., `SHA256SUMS`), verify against it as a sanity check
+- **Seed a real hash, never `""`:** Scoop only autoupdates a top-level hash that is already non-empty (`Update-ManifestProperty`), so an empty hash is permanent. If you must hash by download, give `autoupdate` its own version-less `url` — without it Scoop has nothing to download and writes `""` while exiting 0.
 
 ---
 
@@ -282,6 +290,18 @@ pwsh -NoProfile -Command "cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'; .\bi
 ```
 The `-f` flag forces autoupdate even if already current. Verify the JSON now contains the correct `version`, `url`, and `hash`. If something breaks, check that `autoupdate` URLs use `$version` (not a literal), and that named capture variables are spelled correctly.
 
+`-f` alone does **not** prove hash extraction works: with the correct hash already in place it just rewrites the same value. For a real test, put a deliberately wrong 64-char value (e.g. all zeros) in `hash` using your normal editing path, then run with a cold cache:
+
+```powershell
+pwsh -NoProfile -Command "
+    \$env:SCOOP_CACHE = Join-Path \$env:TEMP 'scoop-cache-test'
+    cd 'C:/Users/jerkl/scoop/buckets/maoyeedy_scoop'
+    .\bin\checkver.ps1 <appname> -u -f
+"
+```
+
+Expected: `Downloading ...` then `Computed hash: <64 hex>`, and the manifest now holds the real hash. No download line means `autoupdate.url` is missing or empty.
+
 **3. Install test:**
 ```powershell
 scoop install 'C:\Users\jerkl\scoop\buckets\maoyeedy_scoop\bucket\<appname>.json'
@@ -310,8 +330,14 @@ Commit message format for new manifests: `Add <appname>` (matches repo history: 
 |---|---|---|
 | `$version` in static `url` | 404 on `scoop install` | Use literal version in `url`; `$version` only in `autoupdate` |
 | Placeholder hashes with `checkhashes.ps1` | `OperationStopped: (404)` or "count mismatch" | Compute hashes manually with `Get-FileHash`; skip `checkhashes.ps1` for new manifests |
+| `autoupdate.hash` with `mode: "download"` but no `autoupdate.url` | `checkver -u -f` exits 0 and writes `"hash": ""` | Add a version-less `autoupdate.url`; it may repeat the static `url` |
+| `"hash": ""` left in a committed manifest | Excavator never fills it; install fails hash check forever | Seed a real hash; Scoop only updates a non-empty top-level hash |
+| `checkver -f` "passes" but hash was never computed | Same manifest hash rewritten, no download log | Zero the hash and use a cold `SCOOP_CACHE`, then look for `Computed hash:` |
 | URL fragment in `Invoke-WebRequest` | File downloads as empty or errors | Strip `#/...` fragment before constructing the download URL |
 | Wrong named capture casing | `$match` variable resolves empty | First letter uppercased only: `(?<build>...)` → `$matchBuild`, `(?<key1>...)` → `$matchKey1` |
+| Unnamed group before a named `version` | checkver reports that token (e.g. the build id) as the version | Group 1 wins; a `version`-named group is only a fallback when group 1 is empty. Keep the version as the only unnamed group, or name it `version` with no unnamed groups |
+| `7z l` reports `Type = PE` on an SFX | You assume it is not extractable and drop the archive | The same listing includes the embedded 7z stream; `7z x` extracts it, so `#/dl.7z` works |
+| Hashing a signed/rotating landing page | Hash changes on every request, installs fail | Hash the artifact, not the page: point `url` at the public CDN object (Pattern D) |
 | `powershell` instead of `pwsh` | `Get-FileHash` or script errors | Always use `pwsh -NoProfile` |
 | No `extract_dir` for zips with a root folder | App files scattered or not found | Check zip structure with `7z l <file>.zip`; add `extract_dir` matching the folder name |
 | `cd` in bash commands | Wrong working directory | Use `git -C <path>` for git; `pwsh -NoProfile -Command "cd '...'; ..."` for pwsh scripts |
